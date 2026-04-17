@@ -10,6 +10,11 @@
   --sans: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
   --heading: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
   --mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+  /* Consistent radius scale */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
   font: 16px/1.5 var(--sans);
   letter-spacing: 0.01em;
   color: var(--text);
@@ -66,11 +71,12 @@ strong {
   color: var(--text-h);
 }
 
+/* Reduced from clamp(2.7rem, 5vw, 4.5rem) — was too dominant for a utility app */
 h1 {
   margin: 0 0 12px;
-  font-size: clamp(2.7rem, 5vw, 4.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 h2 {
@@ -90,7 +96,7 @@ small {
 code {
   display: inline-flex;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--code-bg);
   font: 0.88rem/1.35 var(--mono);
   color: var(--text-h);
