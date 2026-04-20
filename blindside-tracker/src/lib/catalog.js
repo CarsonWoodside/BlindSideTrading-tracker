@@ -1,4 +1,4 @@
-const RAW_SET_FILES = import.meta.glob('../../data/raw/*.csv', {
+const RAW_SET_FILES = import.meta.glob('../../data/raw/**/*.csv', {
   eager: true,
   import: 'default',
   query: '?raw',
