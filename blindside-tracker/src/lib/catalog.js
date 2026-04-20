@@ -136,8 +136,8 @@ function normalizeHeader(header) {
   return header.trim().toLowerCase().replace(/[^a-z0-9]+/g, '')
 }
 
-function getImagePath(teamSlug, setSlug, cardNumber) {
-  return `/images/${teamSlug}/${setSlug}/${encodeURIComponent(cardNumber)}.png`
+function getImagePath(teamSlug, season, setSlug, cardNumber) {
+  return `/images/${teamSlug}/${season}/${setSlug}/${encodeURIComponent(cardNumber)}.png`
 }
 
 function createCards(rows, meta) {
@@ -165,7 +165,7 @@ function createCards(rows, meta) {
       rarity: rarityLabel,
       rarityRank: Number.isFinite(sortValue) ? sortValue : 999,
       duplicateIndex: occurrence,
-      imagePath: getImagePath(meta.teamSlug, meta.setSlug, cardNumber),
+      imagePath: getImagePath(meta.teamSlug, meta.season, meta.setSlug, cardNumber),
     }
   })
 }
@@ -190,7 +190,7 @@ function createSet([filePath, rawCsv]) {
     totalCards: cards.length,
     types,
     rarities,
-    imageFolder: `images/${meta.teamSlug}/${meta.setSlug}`,
+    imageFolder: `images/${meta.teamSlug}/${meta.season}/${meta.setSlug}`,
   }
 }
 

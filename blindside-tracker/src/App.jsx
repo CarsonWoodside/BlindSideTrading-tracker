@@ -13,61 +13,301 @@ const CARD_NUMBER_COLLATOR = new Intl.Collator(undefined, {
   sensitivity: "base",
 });
 
-// ─────────────────────────────────────────────
-// Custom hook: hash-based routing
-// ─────────────────────────────────────────────
+const COLLECTION_VERSION = 1;
 
-function useHashRoute() {
-  const parseHash = () => {
-    const match = window.location.hash.match(/^#\/set\/([^/]+)$/);
-    return match ? decodeURIComponent(match[1]) : null;
-  };
+const PREFS_KEY = "blindside-prefs";
 
-  const [routeSetId, setRouteSetId] = useState(() => parseHash());
-
-  useEffect(() => {
-    const handleHashChange = () => setRouteSetId(parseHash());
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
-  const navigate = useCallback((setId) => {
-    const nextHash = setId ? `#/set/${encodeURIComponent(setId)}` : "#/";
-    if (window.location.hash !== nextHash) {
-      window.location.hash = nextHash;
+const prefsStore = {
+  load() {
+    try {
+      const raw = localStorage.getItem(PREFS_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
     }
-    setRouteSetId(setId);
-  }, []);
+  },
+  save(prefs) {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    } catch {}
+  },
+};
 
-  return { routeSetId, navigate };
+function parseHashFull() {
+  const raw = window.location.hash.slice(1);
+  const [path, queryStr = ""] = raw.split("?");
+  const match = path.match(/^\/set\/([^/]+)$/);
+  const params = new URLSearchParams(queryStr);
+  return {
+    setId: match ? decodeURIComponent(match[1]) : null,
+    owned: params.get("owned") ?? "all",
+    type: params.get("type") ?? "all",
+    rarity: params.get("rarity") ?? "all",
+    q: params.get("q") ?? "",
+    sort: params.get("sort") ?? "default",
+  };
 }
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
+function buildHash(setId, filters) {
+  if (!setId) return "#/";
+  const params = new URLSearchParams();
+  if (filters.owned !== "all") params.set("owned", filters.owned);
+  if (filters.type !== "all") params.set("type", filters.type);
+  if (filters.rarity !== "all") params.set("rarity", filters.rarity);
+  if (filters.q?.trim()) params.set("q", filters.q.trim());
+  if (filters.sort !== "default") params.set("sort", filters.sort);
+  const qs = params.toString();
+  return `#/set/${encodeURIComponent(setId)}${qs ? "?" + qs : ""}`;
+}
+
+function useHashRoute() {
+  const [routeState, setRouteState] = useState(() => parseHashFull());
+
+  useEffect(() => {
+    const handle = () => setRouteState(parseHashFull());
+    window.addEventListener("hashchange", handle);
+    return () => window.removeEventListener("hashchange", handle);
+  }, []);
+
+  const navigate = useCallback((setId, filters) => {
+    const defaultFilters = {
+      owned: "all",
+      type: "all",
+      rarity: "all",
+      q: "",
+      sort: "default",
+    };
+    const next = buildHash(setId, filters ?? defaultFilters);
+    if (window.location.hash !== next) window.location.hash = next;
+    setRouteState(parseHashFull());
+  }, []);
+
+  const updateFilters = useCallback((setId, filters) => {
+    const next = buildHash(setId, filters);
+    if (window.location.hash !== next) window.location.hash = next;
+    setRouteState((prev) => ({ ...prev, ...filters }));
+  }, []);
+
+  return { routeState, navigate, updateFilters };
+}
 
 function formatPercent(value) {
   return `${Math.round(value)}%`;
 }
 
+function timeAgo(isoString) {
+  if (!isoString) return null;
+  const diff = Date.now() - new Date(isoString).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
 function buildSetStats(set, collection) {
   const setState = collection[set.id] ?? {};
-  const ownedCards = set.cards.filter(
-    (card) => (setState[card.id]?.quantity ?? 0) > 0,
-  );
+  let ownedCount = 0;
+  let totalQuantity = 0;
+  let latestUpdate = null;
+
+  set.cards.forEach((card) => {
+    const q = setState[card.id]?.quantity ?? 0;
+    if (q > 0) {
+      ownedCount++;
+      totalQuantity += q;
+      const ts = setState[card.id]?.updatedAt;
+      if (ts && (!latestUpdate || ts > latestUpdate)) latestUpdate = ts;
+    }
+  });
+
   return {
-    ownedCount: ownedCards.length,
-    completion:
-      set.totalCards === 0 ? 0 : (ownedCards.length / set.totalCards) * 100,
+    ownedCount,
+    totalQuantity,
+    duplicateCount: totalQuantity - ownedCount,
+    completion: set.totalCards === 0 ? 0 : (ownedCount / set.totalCards) * 100,
+    lastUpdated: latestUpdate,
   };
 }
 
+function matchesSearch(card, rawQuery) {
+  if (!rawQuery?.trim()) return true;
+  const text =
+    `${card.cardNumber} ${card.playerName} ${card.type} ${card.rarity}`.toLowerCase();
+  return rawQuery
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .every((word) => text.includes(word));
+}
+
 // ─────────────────────────────────────────────
-// CardArtwork
+// Team navigation
 // ─────────────────────────────────────────────
+
+// Build a grouped structure: { teamName -> { season -> [set, ...] } }
+function buildTeamTree(allSets) {
+  const tree = {};
+  allSets.forEach((set) => {
+    if (!tree[set.teamName]) tree[set.teamName] = {};
+    if (!tree[set.teamName][set.season]) tree[set.teamName][set.season] = [];
+    tree[set.teamName][set.season].push(set);
+  });
+  return tree;
+}
+
+function TeamNav({ catalog, allSetStats, selectedSet, onSelectSet }) {
+  const tree = useMemo(() => buildTeamTree(catalog), [catalog]);
+
+  // Which team is currently expanded — default to the active set's team
+  const [expandedTeam, setExpandedTeam] = useState(
+    () => selectedSet?.teamName ?? teams[0] ?? null,
+  );
+
+  // Keep expanded team in sync when URL changes from outside
+  useEffect(() => {
+    if (selectedSet?.teamName) setExpandedTeam(selectedSet.teamName);
+  }, [selectedSet?.teamName]);
+
+  return (
+    <nav className="team-nav panel">
+      <p className="eyebrow" style={{ marginBottom: "12px" }}>
+        Browse Collections
+      </p>
+      {teams.map((teamName) => {
+        const isOpen = expandedTeam === teamName;
+        const seasons = tree[teamName] ?? {};
+        const sortedSeasons = Object.keys(seasons).sort((a, b) =>
+          b.localeCompare(a),
+        );
+
+        // Aggregate stats across all sets for this team
+        const teamSets = catalog.filter((s) => s.teamName === teamName);
+        const teamOwned = teamSets.reduce(
+          (sum, s) => sum + allSetStats[s.id].ownedCount,
+          0,
+        );
+        const teamTotal = teamSets.reduce((sum, s) => sum + s.totalCards, 0);
+        const teamCompletion =
+          teamTotal === 0 ? 0 : (teamOwned / teamTotal) * 100;
+
+        return (
+          <div key={teamName} className="team-nav-group">
+            <button
+              type="button"
+              className={`team-nav-header${isOpen ? " open" : ""}`}
+              onClick={() => setExpandedTeam(isOpen ? null : teamName)}
+              aria-expanded={isOpen}
+            >
+              <div className="team-nav-header-top">
+                <strong>{teamName}</strong>
+                <span className="team-nav-pct">
+                  {formatPercent(teamCompletion)}
+                </span>
+              </div>
+              <div className="team-nav-progress">
+                <div className="progress-bar" aria-hidden="true">
+                  <span style={{ width: `${teamCompletion}%` }} />
+                </div>
+                <span className="team-nav-count">
+                  {teamOwned}/{teamTotal}
+                </span>
+              </div>
+              <span className="team-nav-chevron" aria-hidden="true">
+                {isOpen ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {isOpen && (
+              <div className="team-nav-seasons">
+                {sortedSeasons.map((season) => {
+                  const sets = seasons[season];
+                  return (
+                    <div key={season} className="team-nav-season">
+                      <p className="team-nav-season-label">{season}</p>
+                      {sets.map((set) => {
+                        const stats = allSetStats[set.id];
+                        const isActive = selectedSet?.id === set.id;
+                        const lastUpdatedLabel = timeAgo(stats.lastUpdated);
+                        return (
+                          <button
+                            key={set.id}
+                            type="button"
+                            className={`team-nav-set-btn${isActive ? " active" : ""}`}
+                            onClick={() => onSelectSet(set.id)}
+                            aria-pressed={isActive}
+                          >
+                            <div className="team-nav-set-top">
+                              <span className="team-nav-set-name">
+                                {set.setName}
+                              </span>
+                              {stats.duplicateCount > 0 && (
+                                <span className="dupe-badge">
+                                  {stats.duplicateCount} dupe
+                                  {stats.duplicateCount !== 1 ? "s" : ""}
+                                </span>
+                              )}
+                            </div>
+                            <div className="team-nav-set-bottom">
+                              <span>
+                                {stats.ownedCount} / {set.totalCards}
+                              </span>
+                              <span>{formatPercent(stats.completion)}</span>
+                            </div>
+                            <div className="progress-bar" aria-hidden="true">
+                              <span style={{ width: `${stats.completion}%` }} />
+                            </div>
+                            {lastUpdatedLabel && (
+                              <span className="set-tile-updated">
+                                Updated {lastUpdatedLabel}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Shared components
+// ─────────────────────────────────────────────
+
+function Lightbox({ src, alt, onClose }) {
+  useEffect(() => {
+    const handle = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+  }, [onClose]);
+
+  return (
+    <div className="lightbox-backdrop" onClick={onClose}>
+      <img
+        className="lightbox-img"
+        src={src}
+        alt={alt}
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  );
+}
 
 function CardArtwork({ card, set }) {
   const [missing, setMissing] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
 
   if (missing) {
     return (
@@ -79,20 +319,32 @@ function CardArtwork({ card, set }) {
   }
 
   return (
-    <img
-      className="card-artwork"
-      src={card.imagePath}
-      alt={`${card.playerName} card`}
-      loading="lazy"
-      onError={() => setMissing(true)}
-      data-folder={set.imageFolder}
-    />
+    <>
+      <img
+        className="card-artwork card-artwork--clickable"
+        src={card.imagePath}
+        alt={`${card.playerName} card`}
+        loading="lazy"
+        onClick={() => setLightbox(true)}
+        onError={(e) => {
+          if (!e.target.src.endsWith(".jpg")) {
+            e.target.src = card.imagePath.replace(/\.png$/, ".jpg");
+          } else {
+            setMissing(true);
+          }
+        }}
+        data-folder={set.imageFolder}
+      />
+      {lightbox && (
+        <Lightbox
+          src={card.imagePath}
+          alt={`${card.playerName} card`}
+          onClose={() => setLightbox(false)}
+        />
+      )}
+    </>
   );
 }
-
-// ─────────────────────────────────────────────
-// Toast
-// ─────────────────────────────────────────────
 
 function Toast({ message, visible }) {
   return (
@@ -102,37 +354,81 @@ function Toast({ message, visible }) {
   );
 }
 
+function StorageWarning({ show }) {
+  if (!show) return null;
+  return (
+    <div className="storage-warning" role="alert">
+      ⚠️ Couldn't save your collection — browser storage may be full. Export a
+      backup to avoid losing progress.
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────
-// SetViewer — owns all filter state for a set
+// Set viewer
 // ─────────────────────────────────────────────
 
-function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
-  const [searchValue, setSearchValue] = useState("");
-  const [ownershipFilter, setOwnershipFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [rarityFilter, setRarityFilter] = useState("all");
+function SetViewer({
+  selectedSet,
+  collection,
+  onUpdateCardQuantity,
+  onToast,
+  routeState,
+  onUpdateFilters,
+  viewMode,
+}) {
+  const searchValue = routeState.q;
+  const ownershipFilter = routeState.owned;
+  const typeFilter = routeState.type;
+  const rarityFilter = routeState.rarity;
+  const sortOrder = routeState.sort;
 
-  // Reset filters when the set changes
-  const prevSetId = useRef(selectedSet?.id);
-  useEffect(() => {
-    if (selectedSet?.id !== prevSetId.current) {
-      setSearchValue("");
-      setOwnershipFilter("all");
-      setTypeFilter("all");
-      setRarityFilter("all");
-      prevSetId.current = selectedSet?.id;
+  function setFilter(key, value) {
+    onUpdateFilters({ ...routeState, [key]: value });
+  }
+
+  function clearFilters() {
+    onUpdateFilters({
+      ...routeState,
+      owned: "all",
+      type: "all",
+      rarity: "all",
+      q: "",
+      sort: "default",
+    });
+  }
+
+  const [clearPending, setClearPending] = useState(false);
+  const clearTimer = useRef(null);
+
+  function requestClear() {
+    if (clearPending) {
+      clearTimeout(clearTimer.current);
+      setClearPending(false);
+      clearAllVisible();
+    } else {
+      setClearPending(true);
+      clearTimer.current = setTimeout(() => setClearPending(false), 3000);
     }
+  }
+
+  useEffect(() => {
+    setClearPending(false);
+    clearTimeout(clearTimer.current);
   }, [selectedSet?.id]);
 
-  const selectedSetState = useMemo(() => {
-    return selectedSet ? (collection[selectedSet.id] ?? {}) : {};
-  }, [collection, selectedSet]);
+  const selectedSetState = useMemo(
+    () => (selectedSet ? (collection[selectedSet.id] ?? {}) : {}),
+    [collection, selectedSet],
+  );
 
-  const selectedSetStats = useMemo(() => {
-    return selectedSet
-      ? buildSetStats(selectedSet, collection)
-      : { ownedCount: 0, completion: 0 };
-  }, [collection, selectedSet]);
+  const selectedSetStats = useMemo(
+    () =>
+      selectedSet
+        ? buildSetStats(selectedSet, collection)
+        : { ownedCount: 0, totalQuantity: 0, duplicateCount: 0, completion: 0 },
+    [collection, selectedSet],
+  );
 
   const rarityProgress = useMemo(() => {
     if (!selectedSet) return [];
@@ -143,8 +439,8 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
       ).length;
       return {
         rarity,
-        ownedCount,
         totalCards: cards.length,
+        ownedCount,
         completion: cards.length === 0 ? 0 : (ownedCount / cards.length) * 100,
       };
     });
@@ -152,36 +448,42 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
 
   const visibleCards = useMemo(() => {
     if (!selectedSet) return [];
-    return [...selectedSet.cards]
-      .filter((card) => {
-        const quantity = selectedSetState[card.id]?.quantity ?? 0;
-        const searchText =
-          `${card.cardNumber} ${card.playerName} ${card.type} ${card.rarity}`.toLowerCase();
-        const matchesSearch =
-          searchValue.trim() === "" ||
-          searchText.includes(searchValue.trim().toLowerCase());
-        const matchesOwnership =
-          ownershipFilter === "all" ||
-          (ownershipFilter === "owned" && quantity > 0) ||
-          (ownershipFilter === "missing" && quantity === 0);
-        const matchesType = typeFilter === "all" || card.type === typeFilter;
-        const matchesRarity =
-          rarityFilter === "all" || card.rarity === rarityFilter;
-        return (
-          matchesSearch && matchesOwnership && matchesType && matchesRarity
-        );
-      })
-      .sort(
-        (a, b) =>
-          a.rarityRank - b.rarityRank ||
-          CARD_NUMBER_COLLATOR.compare(a.cardNumber, b.cardNumber),
+    const filtered = selectedSet.cards.filter((card) => {
+      const qty = selectedSetState[card.id]?.quantity ?? 0;
+      const matchOwn =
+        ownershipFilter === "all" ||
+        (ownershipFilter === "owned" && qty > 0) ||
+        (ownershipFilter === "missing" && qty === 0) ||
+        (ownershipFilter === "duplicates" && qty > 1);
+      const matchType = typeFilter === "all" || card.type === typeFilter;
+      const matchRarity =
+        rarityFilter === "all" || card.rarity === rarityFilter;
+      return (
+        matchesSearch(card, searchValue) && matchOwn && matchType && matchRarity
       );
+    });
+
+    return filtered.sort((a, b) => {
+      if (sortOrder === "name") return a.playerName.localeCompare(b.playerName);
+      if (sortOrder === "number")
+        return CARD_NUMBER_COLLATOR.compare(a.cardNumber, b.cardNumber);
+      if (sortOrder === "recent") {
+        const tsA = selectedSetState[a.id]?.updatedAt ?? "";
+        const tsB = selectedSetState[b.id]?.updatedAt ?? "";
+        return tsB.localeCompare(tsA);
+      }
+      return (
+        a.rarityRank - b.rarityRank ||
+        CARD_NUMBER_COLLATOR.compare(a.cardNumber, b.cardNumber)
+      );
+    });
   }, [
     ownershipFilter,
     rarityFilter,
     searchValue,
     selectedSet,
     selectedSetState,
+    sortOrder,
     typeFilter,
   ]);
 
@@ -191,26 +493,30 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
     typeFilter !== "all" ||
     rarityFilter !== "all";
 
-  // Mark all currently visible cards as owned
   function markAllVisible() {
-    visibleCards.forEach((card) => {
-      const current = selectedSetState[card.id]?.quantity ?? 0;
-      if (current === 0) {
-        onUpdateCardQuantity(selectedSet.id, card.id, 1);
-      }
+    onUpdateCardQuantity(selectedSet.id, null, null, (curr) => {
+      const next = { ...curr };
+      visibleCards.forEach((card) => {
+        if ((next[card.id]?.quantity ?? 0) === 0) {
+          next[card.id] = { quantity: 1, updatedAt: new Date().toISOString() };
+        }
+      });
+      return next;
     });
     onToast(
       `Marked ${visibleCards.length} card${visibleCards.length !== 1 ? "s" : ""} as owned`,
     );
   }
 
-  // Clear all visible cards from collection
   function clearAllVisible() {
-    visibleCards.forEach((card) => {
-      const current = selectedSetState[card.id]?.quantity ?? 0;
-      if (current > 0) {
-        onUpdateCardQuantity(selectedSet.id, card.id, 0);
-      }
+    onUpdateCardQuantity(selectedSet.id, null, null, (curr) => {
+      const next = { ...curr };
+      visibleCards.forEach((card) => {
+        if ((next[card.id]?.quantity ?? 0) > 0) {
+          next[card.id] = { quantity: 0, updatedAt: new Date().toISOString() };
+        }
+      });
+      return next;
     });
     onToast(
       `Cleared ${visibleCards.length} card${visibleCards.length !== 1 ? "s" : ""}`,
@@ -219,9 +525,10 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
 
   if (!selectedSet) return null;
 
+  const isListView = viewMode === "list";
+
   return (
     <section className="content">
-      {/* Set header */}
       <header className="content-header panel">
         <div>
           <p className="eyebrow">{selectedSet.season}</p>
@@ -236,11 +543,11 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
         <div className="content-stats">
           <div>
             <strong>{selectedSetStats.ownedCount}</strong>
-            <span>cards found</span>
+            <span>unique owned</span>
           </div>
           <div>
             <strong>{selectedSet.totalCards}</strong>
-            <span>cards in set</span>
+            <span>in set</span>
           </div>
           <div>
             <strong>
@@ -252,14 +559,26 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
             <strong>{formatPercent(selectedSetStats.completion)}</strong>
             <span>complete</span>
           </div>
+          <div>
+            <strong>{selectedSetStats.totalQuantity}</strong>
+            <span>total cards</span>
+          </div>
+          <div>
+            <strong>{selectedSetStats.duplicateCount}</strong>
+            <span>duplicates</span>
+          </div>
         </div>
       </header>
 
-      {/* Rarity breakdown */}
       <section className="panel">
         <div className="panel-heading">
           <h2>Set Breakdown</h2>
           <span>{formatPercent(selectedSetStats.completion)}</span>
+        </div>
+        <div className="breakdown-overall">
+          <div className="progress-bar progress-bar--lg" aria-hidden="true">
+            <span style={{ width: `${selectedSetStats.completion}%` }} />
+          </div>
         </div>
         <div className="breakdown-list">
           {rarityProgress.map((item) => (
@@ -271,67 +590,82 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
                 </span>
               </div>
               <div className="progress-bar" aria-hidden="true">
-                <span style={{ width: `${item.completion}%` }}></span>
+                <span style={{ width: `${item.completion}%` }} />
               </div>
             </article>
           ))}
         </div>
       </section>
 
-      {/* Filters */}
       <section className="panel filters">
         <input
           type="search"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          placeholder="Search card number, player, type, rarity"
+          onChange={(e) => setFilter("q", e.target.value)}
+          placeholder="Search player, number, type… (multi-word AND)"
           aria-label="Search cards"
         />
-        {/* On mobile these three selects render side-by-side via .filter-selects */}
         <div className="filter-selects" style={{ display: "contents" }}>
           <select
             value={ownershipFilter}
-            onChange={(e) => setOwnershipFilter(e.target.value)}
+            onChange={(e) => setFilter("owned", e.target.value)}
             aria-label="Filter by ownership"
           >
             <option value="all">All cards</option>
             <option value="owned">Owned only</option>
             <option value="missing">Missing only</option>
+            <option value="duplicates">Duplicates only</option>
           </select>
           <select
             value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
+            onChange={(e) => setFilter("type", e.target.value)}
             aria-label="Filter by type"
           >
             <option value="all">All types</option>
-            {selectedSet.types.map((type) => (
-              <option key={type} value={type}>
-                {type}
+            {selectedSet.types.map((t) => (
+              <option key={t} value={t}>
+                {t}
               </option>
             ))}
           </select>
           <select
             value={rarityFilter}
-            onChange={(e) => setRarityFilter(e.target.value)}
+            onChange={(e) => setFilter("rarity", e.target.value)}
             aria-label="Filter by rarity"
           >
             <option value="all">All rarities</option>
-            {selectedSet.rarities.map((rarity) => (
-              <option key={rarity} value={rarity}>
-                {rarity}
+            {selectedSet.rarities.map((r) => (
+              <option key={r} value={r}>
+                {r}
               </option>
             ))}
           </select>
+          <select
+            value={sortOrder}
+            onChange={(e) => setFilter("sort", e.target.value)}
+            aria-label="Sort order"
+          >
+            <option value="default">Sort: Default</option>
+            <option value="name">Sort: Name A–Z</option>
+            <option value="number">Sort: Card number</option>
+            <option value="recent">Sort: Recently added</option>
+          </select>
         </div>
-        {/* Always show count so users know how many cards match */}
         <p className="filter-count">
           Showing {visibleCards.length} of {selectedSet.totalCards} card
           {selectedSet.totalCards !== 1 ? "s" : ""}
-          {filtersAreActive ? " (filtered)" : ""}
+          {filtersAreActive && (
+            <>
+              {" "}
+              (filtered) —{" "}
+              <button type="button" className="link-btn" onClick={clearFilters}>
+                clear filters
+              </button>
+            </>
+          )}
         </p>
       </section>
 
-      {/* Bulk actions — only shown when there are visible cards */}
       {visibleCards.length > 0 && (
         <div className="bulk-actions">
           <span>
@@ -346,96 +680,185 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
           >
             Mark all as owned
           </button>
-          <button type="button" className="btn" onClick={clearAllVisible}>
-            Clear all
+          <button
+            type="button"
+            className={`btn${clearPending ? " btn-danger" : ""}`}
+            onClick={requestClear}
+            title={
+              clearPending
+                ? "Tap again to confirm clear"
+                : "Remove all from collection"
+            }
+          >
+            {clearPending ? "Tap again to confirm" : "Clear all"}
           </button>
         </div>
       )}
 
-      {/* Card grid */}
-      <section className="card-grid">
-        {visibleCards.map((card) => {
-          const quantity = selectedSetState[card.id]?.quantity ?? 0;
-          const owned = quantity > 0;
+      {visibleCards.length === 0 && (
+        <div className="empty-state">
+          <p className="empty-state-title">No cards match your filters</p>
+          <p className="empty-state-sub">
+            Try adjusting the search or filter options above.
+          </p>
+          <button type="button" className="btn" onClick={clearFilters}>
+            Clear filters
+          </button>
+        </div>
+      )}
 
-          return (
-            <article
-              key={`${selectedSet.id}:${card.id}`}
-              className={`tracker-card${owned ? " owned" : ""}`}
-            >
-              <CardArtwork card={card} set={selectedSet} />
-
-              <div className="tracker-card-body">
-                <div className="card-topline">
-                  <span>{card.cardNumber}</span>
-                  <span>{card.rarity}</span>
-                </div>
-                <h3>{card.playerName}</h3>
-                <p>{card.type}</p>
-
-                {/* Quantity stepper — only shown once owned */}
-                {owned && (
-                  <div className="quantity-controls">
-                    <button
-                      type="button"
-                      className="qty-btn"
-                      aria-label={`Remove one copy of ${card.playerName}`}
-                      onClick={() =>
-                        onUpdateCardQuantity(
-                          selectedSet.id,
-                          card.id,
-                          quantity - 1,
-                        )
-                      }
-                      disabled={quantity <= 0}
-                    >
-                      −
-                    </button>
-                    <span aria-label={`${quantity} owned`}>{quantity}</span>
-                    <button
-                      type="button"
-                      className="qty-btn"
-                      aria-label={`Add another copy of ${card.playerName}`}
-                      onClick={() =>
-                        onUpdateCardQuantity(
-                          selectedSet.id,
-                          card.id,
-                          quantity + 1,
-                        )
-                      }
-                    >
-                      +
-                    </button>
-                    <span className="qty-label">
-                      {quantity === 1 ? "copy" : "copies"}
-                    </span>
-                  </div>
+      {isListView ? (
+        <section className="card-list">
+          {visibleCards.map((card) => {
+            const quantity = selectedSetState[card.id]?.quantity ?? 0;
+            const owned = quantity > 0;
+            return (
+              <article
+                key={`${selectedSet.id}:${card.id}`}
+                className={`list-row${owned ? " owned" : ""}`}
+              >
+                <span className="list-number">{card.cardNumber}</span>
+                <span className="list-name">{card.playerName}</span>
+                <span className="list-meta">{card.type}</span>
+                <span className="list-meta list-rarity">{card.rarity}</span>
+                {owned && quantity > 1 && (
+                  <span className="list-qty">×{quantity}</span>
                 )}
-              </div>
-
-              {/* Mark owned/missing toggle — replaces the old toggle + redundant status pill */}
-              <div className="tracker-actions">
-                <button
-                  type="button"
-                  className={`collection-toggle${owned ? " active" : ""}`}
-                  aria-label={`${card.playerName} — ${owned ? "remove from" : "add to"} collection`}
-                  onClick={() =>
-                    onUpdateCardQuantity(selectedSet.id, card.id, owned ? 0 : 1)
-                  }
-                >
-                  <span className="toggle-label">
-                    {owned ? "In collection" : "Missing"}
-                  </span>
-                  <span className="toggle-state">
-                    {owned ? "Tap to remove" : "Tap to mark found"}
-                  </span>
-                </button>
-              </div>
-              {/* tracker-footer removed — redundant with the toggle above */}
-            </article>
-          );
-        })}
-      </section>
+                <div className="list-actions">
+                  {owned && (
+                    <>
+                      <button
+                        type="button"
+                        className="qty-btn"
+                        aria-label={`Remove a copy of ${card.playerName}`}
+                        onClick={() =>
+                          onUpdateCardQuantity(
+                            selectedSet.id,
+                            card.id,
+                            quantity - 1,
+                          )
+                        }
+                        disabled={quantity <= 0}
+                      >
+                        −
+                      </button>
+                      <button
+                        type="button"
+                        className="qty-btn"
+                        aria-label={`Add a copy of ${card.playerName}`}
+                        onClick={() =>
+                          onUpdateCardQuantity(
+                            selectedSet.id,
+                            card.id,
+                            quantity + 1,
+                          )
+                        }
+                      >
+                        +
+                      </button>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    className={`btn${owned ? "" : " btn-dark"}`}
+                    aria-label={`${card.playerName} — ${owned ? "remove from" : "add to"} collection`}
+                    onClick={() =>
+                      onUpdateCardQuantity(
+                        selectedSet.id,
+                        card.id,
+                        owned ? 0 : 1,
+                      )
+                    }
+                  >
+                    {owned ? "Remove" : "Mark found"}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      ) : (
+        <section className="card-grid">
+          {visibleCards.map((card) => {
+            const quantity = selectedSetState[card.id]?.quantity ?? 0;
+            const owned = quantity > 0;
+            return (
+              <article
+                key={`${selectedSet.id}:${card.id}`}
+                className={`tracker-card${owned ? " owned" : ""}`}
+              >
+                <CardArtwork card={card} set={selectedSet} />
+                <div className="tracker-card-body">
+                  <div className="card-topline">
+                    <span>{card.cardNumber}</span>
+                    <span>{card.rarity}</span>
+                  </div>
+                  <h3>{card.playerName}</h3>
+                  <p>{card.type}</p>
+                  {owned && (
+                    <div className="quantity-controls">
+                      <button
+                        type="button"
+                        className="qty-btn"
+                        aria-label={`Remove one copy of ${card.playerName}`}
+                        onClick={() =>
+                          onUpdateCardQuantity(
+                            selectedSet.id,
+                            card.id,
+                            quantity - 1,
+                          )
+                        }
+                        disabled={quantity <= 0}
+                      >
+                        −
+                      </button>
+                      <span aria-label={`${quantity} owned`}>{quantity}</span>
+                      <button
+                        type="button"
+                        className="qty-btn"
+                        aria-label={`Add another copy of ${card.playerName}`}
+                        onClick={() =>
+                          onUpdateCardQuantity(
+                            selectedSet.id,
+                            card.id,
+                            quantity + 1,
+                          )
+                        }
+                      >
+                        +
+                      </button>
+                      <span className="qty-label">
+                        {quantity === 1 ? "copy" : "copies"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="tracker-actions">
+                  <button
+                    type="button"
+                    className={`collection-toggle${owned ? " active" : ""}`}
+                    aria-label={`${card.playerName} — ${owned ? "remove from" : "add to"} collection`}
+                    onClick={() =>
+                      onUpdateCardQuantity(
+                        selectedSet.id,
+                        card.id,
+                        owned ? 0 : 1,
+                      )
+                    }
+                  >
+                    <span className="toggle-label">
+                      {owned ? "In collection" : "Missing"}
+                    </span>
+                    <span className="toggle-state">
+                      {owned ? "Tap to remove" : "Tap to mark found"}
+                    </span>
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      )}
     </section>
   );
 }
@@ -445,41 +868,66 @@ function SetViewer({ selectedSet, collection, onUpdateCardQuantity, onToast }) {
 // ─────────────────────────────────────────────
 
 function App() {
-  const { routeSetId, navigate } = useHashRoute();
+  const { routeState, navigate, updateFilters } = useHashRoute();
   const [collection, setCollection] = useState(() => collectionStore.load());
-  const [teamFilter, setTeamFilter] = useState("All Teams");
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [storageWarning, setStorageWarning] = useState(false);
+  const [importMode, setImportMode] = useState("replace");
   const toastTimer = useRef(null);
-
-  // Debounced save — write at most once per 300 ms of inactivity
   const saveTimer = useRef(null);
+
+  const [prefs, setPrefs] = useState(() => {
+    const saved = prefsStore.load();
+    return {
+      defaultOwnership: saved.defaultOwnership ?? "all",
+      viewMode: saved.viewMode ?? "grid",
+      theme: saved.theme ?? "light",
+    };
+  });
+
+  useEffect(() => {
+    prefsStore.save(prefs);
+  }, [prefs]);
+
+  function setPref(key, value) {
+    setPrefs((p) => ({ ...p, [key]: value }));
+  }
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", prefs.theme);
+  }, [prefs.theme]);
+
   useEffect(() => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      collectionStore.save(collection);
+      try {
+        collectionStore.save(collection);
+        setStorageWarning(false);
+      } catch {
+        setStorageWarning(true);
+      }
     }, 300);
     return () => clearTimeout(saveTimer.current);
   }, [collection]);
 
-  // Default to first set if no hash present
-  const selectedSet = useMemo(() => {
-    return catalog.find((set) => set.id === routeSetId) ?? catalog[0];
-  }, [routeSetId]);
+  const selectedSet = useMemo(
+    () => catalog.find((s) => s.id === routeState.setId) ?? catalog[0],
+    [routeState.setId],
+  );
 
   useEffect(() => {
-    if (!routeSetId && selectedSet) {
-      navigate(selectedSet.id);
+    if (!routeState.setId && selectedSet) {
+      navigate(selectedSet.id, {
+        owned: prefs.defaultOwnership,
+        type: "all",
+        rarity: "all",
+        q: "",
+        sort: "default",
+      });
     }
-  }, [routeSetId, selectedSet, navigate]);
+  }, [routeState.setId, selectedSet, navigate, prefs.defaultOwnership]);
 
-  const filteredSets = useMemo(() => {
-    return catalog.filter(
-      (set) => teamFilter === "All Teams" || set.teamName === teamFilter,
-    );
-  }, [teamFilter]);
-
-  // Pre-compute stats for every set in one pass — no per-render recalculation in JSX
   const allSetStats = useMemo(() => {
     const map = {};
     catalog.forEach((set) => {
@@ -489,25 +937,24 @@ function App() {
   }, [collection]);
 
   const overviewStats = useMemo(() => {
-    const totals = catalog.reduce(
-      (acc, set) => {
-        const stats = allSetStats[set.id];
-        acc.totalCards += set.totalCards;
-        acc.ownedCount += stats.ownedCount;
-        return acc;
-      },
-      { totalCards: 0, ownedCount: 0 },
-    );
+    let totalCards = 0,
+      ownedCount = 0,
+      totalQuantity = 0;
+    catalog.forEach((set) => {
+      const s = allSetStats[set.id];
+      totalCards += set.totalCards;
+      ownedCount += s.ownedCount;
+      totalQuantity += s.totalQuantity;
+    });
     return {
-      ...totals,
-      completion:
-        totals.totalCards === 0
-          ? 0
-          : (totals.ownedCount / totals.totalCards) * 100,
+      totalCards,
+      ownedCount,
+      totalQuantity,
+      duplicateCount: totalQuantity - ownedCount,
+      completion: totalCards === 0 ? 0 : (ownedCount / totalCards) * 100,
     };
   }, [allSetStats]);
 
-  // ── Toast helper ──
   function showToast(message) {
     clearTimeout(toastTimer.current);
     setToastMessage(message);
@@ -515,27 +962,28 @@ function App() {
     toastTimer.current = setTimeout(() => setToastVisible(false), 2500);
   }
 
-  // ── Collection mutation ──
-  function updateCardQuantity(setId, cardId, nextQuantity) {
+  function updateCardQuantity(setId, cardId, nextQuantity, batchUpdater) {
     setCollection((current) => {
-      const safeQuantity = Math.max(0, nextQuantity);
+      if (batchUpdater) {
+        const nextSetState = batchUpdater(current[setId] ?? {});
+        return { ...current, [setId]: nextSetState };
+      }
+      const safeQty = Math.max(0, nextQuantity);
       return {
         ...current,
         [setId]: {
           ...(current[setId] ?? {}),
-          [cardId]: {
-            quantity: safeQuantity,
-            updatedAt: new Date().toISOString(),
-          },
+          [cardId]: { quantity: safeQty, updatedAt: new Date().toISOString() },
         },
       };
     });
   }
 
-  // ── Export collection as JSON ──
   function handleExport() {
-    const json = JSON.stringify(collection, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
+    const payload = { version: COLLECTION_VERSION, data: collection };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -545,7 +993,6 @@ function App() {
     showToast("Collection exported!");
   }
 
-  // ── Import collection from JSON ──
   function handleImport() {
     const input = document.createElement("input");
     input.type = "file";
@@ -557,11 +1004,30 @@ function App() {
       reader.onload = (ev) => {
         try {
           const parsed = JSON.parse(ev.target.result);
-          if (typeof parsed !== "object" || Array.isArray(parsed)) {
+          const incoming = parsed.version && parsed.data ? parsed.data : parsed;
+          if (typeof incoming !== "object" || Array.isArray(incoming))
             throw new Error("Invalid format");
+
+          if (importMode === "replace") {
+            setCollection(incoming);
+            showToast("Collection replaced from file!");
+          } else {
+            setCollection((current) => {
+              const next = { ...current };
+              Object.entries(incoming).forEach(([setId, cards]) => {
+                next[setId] = { ...(next[setId] ?? {}) };
+                Object.entries(cards).forEach(([cardId, cardData]) => {
+                  const existingQty = next[setId][cardId]?.quantity ?? 0;
+                  const incomingQty = cardData?.quantity ?? 0;
+                  if (incomingQty > existingQty) {
+                    next[setId][cardId] = cardData;
+                  }
+                });
+              });
+              return next;
+            });
+            showToast("Collection merged — kept highest quantities!");
           }
-          setCollection(parsed);
-          showToast("Collection imported!");
         } catch {
           showToast("Import failed — invalid file.");
         }
@@ -572,12 +1038,19 @@ function App() {
   }
 
   function selectSet(setId) {
-    navigate(setId);
+    navigate(setId, {
+      owned: prefs.defaultOwnership,
+      type: "all",
+      rarity: "all",
+      q: "",
+      sort: "default",
+    });
   }
 
   return (
     <div className="app-shell">
-      {/* ── Hero / header ── */}
+      <StorageWarning show={storageWarning} />
+
       <header className="hero-panel">
         <div className="brand-block">
           <img
@@ -592,23 +1065,43 @@ function App() {
               Track your BlindSide Trading Cards collections! Official lists and
               images coming soon.
             </p>
-            {/* Export / Import */}
             <div className="data-actions" style={{ marginTop: "16px" }}>
               <button
                 type="button"
                 className="btn btn-dark"
                 onClick={handleExport}
               >
-                Export collection
+                Export
               </button>
-              <button type="button" className="btn" onClick={handleImport}>
-                Import collection
+              <div className="import-group">
+                <select
+                  value={importMode}
+                  onChange={(e) => setImportMode(e.target.value)}
+                  aria-label="Import mode"
+                  className="import-mode-select"
+                >
+                  <option value="replace">Replace</option>
+                  <option value="merge">Merge</option>
+                </select>
+                <button type="button" className="btn" onClick={handleImport}>
+                  Import
+                </button>
+              </div>
+              <button
+                type="button"
+                className="btn theme-toggle"
+                onClick={() =>
+                  setPref("theme", prefs.theme === "light" ? "dark" : "light")
+                }
+                aria-label="Toggle dark mode"
+                title="Toggle dark mode"
+              >
+                {prefs.theme === "light" ? "🌙" : "☀️"}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Overall progress */}
         <section className="collection-progress">
           <div className="collection-progress-top">
             <div>
@@ -617,7 +1110,13 @@ function App() {
                 {overviewStats.ownedCount} / {overviewStats.totalCards}
               </strong>
             </div>
-            <span>{formatPercent(overviewStats.completion)} complete</span>
+            <div className="overview-meta">
+              <span>{formatPercent(overviewStats.completion)} complete</span>
+              <span className="overview-sub">
+                {overviewStats.totalQuantity} total ·{" "}
+                {overviewStats.duplicateCount} dupes
+              </span>
+            </div>
           </div>
           <div
             className="collection-progress-bar"
@@ -627,77 +1126,82 @@ function App() {
             aria-valuemax={100}
             aria-label="Overall collection progress"
           >
-            <span style={{ width: `${overviewStats.completion}%` }}></span>
+            <span style={{ width: `${overviewStats.completion}%` }} />
           </div>
         </section>
       </header>
 
-      <main className="content-flow">
-        {/* ── Set browser ── */}
-        <section className="panel set-browser-panel">
-          <div className="panel-heading">
-            <div>
-              <p className="eyebrow">Browse Collections</p>
-              <h2>Choose a set</h2>
+      <main className="app-body">
+        {/* Left: team nav */}
+        <aside className="app-sidebar">
+          <div className="settings-bar panel">
+            <div className="settings-group">
+              <label htmlFor="default-ownership" className="settings-label">
+                Default filter
+              </label>
+              <select
+                id="default-ownership"
+                value={prefs.defaultOwnership}
+                onChange={(e) => setPref("defaultOwnership", e.target.value)}
+              >
+                <option value="all">All cards</option>
+                <option value="owned">Owned only</option>
+                <option value="missing">Missing only</option>
+                <option value="duplicates">Duplicates only</option>
+              </select>
             </div>
-            <select
-              value={teamFilter}
-              onChange={(e) => setTeamFilter(e.target.value)}
-              aria-label="Filter sets by team"
-            >
-              <option>All Teams</option>
-              {teams.map((team) => (
-                <option key={team} value={team}>
-                  {team}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          <div className="set-strip">
-            {filteredSets.map((set) => {
-              // Use pre-computed stats — no recalculation here
-              const stats = allSetStats[set.id];
-              const isActive = selectedSet?.id === set.id;
-
-              return (
+            <div className="settings-group">
+              <span className="settings-label">View</span>
+              <div className="view-toggle">
                 <button
-                  key={set.id}
                   type="button"
-                  className={`set-tile${isActive ? " active" : ""}`}
-                  onClick={() => selectSet(set.id)}
-                  aria-pressed={isActive}
+                  className={`view-btn${prefs.viewMode === "grid" ? " active" : ""}`}
+                  onClick={() => setPref("viewMode", "grid")}
+                  aria-label="Grid view"
+                  title="Grid view"
                 >
-                  <span className="set-meta">{set.season}</span>
-                  <strong>{set.teamName}</strong>
-                  <small>{set.setName}</small>
-                  <div className="set-tile-footer">
-                    <span>
-                      {stats.ownedCount} / {set.totalCards}
-                    </span>
-                    <span>{formatPercent(stats.completion)}</span>
-                  </div>
-                  <div className="progress-bar" aria-hidden="true">
-                    <span style={{ width: `${stats.completion}%` }}></span>
-                  </div>
+                  ⊞
                 </button>
-              );
-            })}
+                <button
+                  type="button"
+                  className={`view-btn${prefs.viewMode === "list" ? " active" : ""}`}
+                  onClick={() => setPref("viewMode", "list")}
+                  aria-label="List view"
+                  title="List view"
+                >
+                  ≡
+                </button>
+              </div>
+            </div>
           </div>
-        </section>
 
-        {/* ── Set viewer (owns its own filter state) ── */}
-        {selectedSet && (
-          <SetViewer
+          <TeamNav
+            catalog={catalog}
+            allSetStats={allSetStats}
             selectedSet={selectedSet}
-            collection={collection}
-            onUpdateCardQuantity={updateCardQuantity}
-            onToast={showToast}
+            onSelectSet={selectSet}
           />
-        )}
+        </aside>
+
+        {/* Right: set viewer */}
+        <div className="app-content">
+          {selectedSet && (
+            <SetViewer
+              selectedSet={selectedSet}
+              collection={collection}
+              onUpdateCardQuantity={updateCardQuantity}
+              onToast={showToast}
+              routeState={routeState}
+              onUpdateFilters={(filters) =>
+                updateFilters(selectedSet.id, filters)
+              }
+              viewMode={prefs.viewMode}
+            />
+          )}
+        </div>
       </main>
 
-      {/* ── Toast notifications ── */}
       <Toast message={toastMessage} visible={toastVisible} />
     </div>
   );
