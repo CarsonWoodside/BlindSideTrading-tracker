@@ -14,7 +14,6 @@ const CARD_NUMBER_COLLATOR = new Intl.Collator(undefined, {
 });
 
 const COLLECTION_VERSION = 1;
-
 const PREFS_KEY = "blindside-prefs";
 
 const prefsStore = {
@@ -32,6 +31,10 @@ const prefsStore = {
     } catch {}
   },
 };
+
+// ─────────────────────────────────────────────
+// Routing
+// ─────────────────────────────────────────────
 
 function parseHashFull() {
   const raw = window.location.hash.slice(1);
@@ -91,6 +94,10 @@ function useHashRoute() {
   return { routeState, navigate, updateFilters };
 }
 
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+
 function formatPercent(value) {
   return `${Math.round(value)}%`;
 }
@@ -145,10 +152,9 @@ function matchesSearch(card, rawQuery) {
 }
 
 // ─────────────────────────────────────────────
-// Team navigation
+// Team navigation content (reused in sidebar + drawer)
 // ─────────────────────────────────────────────
 
-// Build a grouped structure: { teamName -> { season -> [set, ...] } }
 function buildTeamTree(allSets) {
   const tree = {};
   allSets.forEach((set) => {
@@ -159,21 +165,19 @@ function buildTeamTree(allSets) {
   return tree;
 }
 
-function TeamNav({ catalog, allSetStats, selectedSet, onSelectSet }) {
+function TeamNavContent({ catalog, allSetStats, selectedSet, onSelectSet }) {
   const tree = useMemo(() => buildTeamTree(catalog), [catalog]);
 
-  // Which team is currently expanded — default to the active set's team
   const [expandedTeam, setExpandedTeam] = useState(
     () => selectedSet?.teamName ?? teams[0] ?? null,
   );
 
-  // Keep expanded team in sync when URL changes from outside
   useEffect(() => {
     if (selectedSet?.teamName) setExpandedTeam(selectedSet.teamName);
   }, [selectedSet?.teamName]);
 
   return (
-    <nav className="team-nav panel">
+    <>
       <p className="eyebrow" style={{ marginBottom: "12px" }}>
         Browse Collections
       </p>
@@ -183,8 +187,6 @@ function TeamNav({ catalog, allSetStats, selectedSet, onSelectSet }) {
         const sortedSeasons = Object.keys(seasons).sort((a, b) =>
           b.localeCompare(a),
         );
-
-        // Aggregate stats across all sets for this team
         const teamSets = catalog.filter((s) => s.teamName === teamName);
         const teamOwned = teamSets.reduce(
           (sum, s) => sum + allSetStats[s.id].ownedCount,
@@ -276,12 +278,61 @@ function TeamNav({ catalog, allSetStats, selectedSet, onSelectSet }) {
           </div>
         );
       })}
-    </nav>
+    </>
   );
 }
 
 // ─────────────────────────────────────────────
-// Shared components
+// Mobile drawer
+// ─────────────────────────────────────────────
+
+function MobileDrawer({ open, onClose, children }) {
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  useEffect(() => {
+    const handle = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+  }, [onClose]);
+
+  return (
+    <>
+      <div
+        className={`drawer-backdrop${open ? " open" : ""}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className={`drawer${open ? " open" : ""}`}
+        aria-modal="true"
+        role="dialog"
+      >
+        <div className="drawer-header">
+          <p className="drawer-title">Collections</p>
+          <button
+            type="button"
+            className="drawer-close"
+            onClick={onClose}
+            aria-label="Close menu"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="drawer-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Lightbox
 // ─────────────────────────────────────────────
 
 function Lightbox({ src, alt, onClose }) {
@@ -304,6 +355,10 @@ function Lightbox({ src, alt, onClose }) {
     </div>
   );
 }
+
+// ─────────────────────────────────────────────
+// Shared components
+// ─────────────────────────────────────────────
 
 function CardArtwork({ card, set }) {
   const [missing, setMissing] = useState(false);
@@ -382,6 +437,8 @@ function SetViewer({
   const typeFilter = routeState.type;
   const rarityFilter = routeState.rarity;
   const sortOrder = routeState.sort;
+
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   function setFilter(key, value) {
     onUpdateFilters({ ...routeState, [key]: value });
@@ -529,6 +586,7 @@ function SetViewer({
 
   return (
     <section className="content">
+      {/* Header */}
       <header className="content-header panel">
         <div>
           <p className="eyebrow">{selectedSet.season}</p>
@@ -541,35 +599,38 @@ function SetViewer({
           </p>
         </div>
         <div className="content-stats">
+          {/* Always visible */}
           <div>
             <strong>{selectedSetStats.ownedCount}</strong>
-            <span>unique owned</span>
-          </div>
-          <div>
-            <strong>{selectedSet.totalCards}</strong>
-            <span>in set</span>
+            <span>owned</span>
           </div>
           <div>
             <strong>
               {selectedSet.totalCards - selectedSetStats.ownedCount}
             </strong>
-            <span>still missing</span>
+            <span>missing</span>
           </div>
           <div>
             <strong>{formatPercent(selectedSetStats.completion)}</strong>
             <span>complete</span>
           </div>
-          <div>
+          {/* Hidden on mobile */}
+          <div className="stat-desktop-only">
+            <strong>{selectedSet.totalCards}</strong>
+            <span>in set</span>
+          </div>
+          <div className="stat-desktop-only">
             <strong>{selectedSetStats.totalQuantity}</strong>
             <span>total cards</span>
           </div>
-          <div>
+          <div className="stat-desktop-only">
             <strong>{selectedSetStats.duplicateCount}</strong>
             <span>duplicates</span>
           </div>
         </div>
       </header>
 
+      {/* Breakdown */}
       <section className="panel">
         <div className="panel-heading">
           <h2>Set Breakdown</h2>
@@ -597,15 +658,28 @@ function SetViewer({
         </div>
       </section>
 
-      <section className="panel filters">
-        <input
-          type="search"
-          value={searchValue}
-          onChange={(e) => setFilter("q", e.target.value)}
-          placeholder="Search player, number, type… (multi-word AND)"
-          aria-label="Search cards"
-        />
-        <div className="filter-selects" style={{ display: "contents" }}>
+      {/* Filters */}
+      <section className="panel filters-panel">
+        <div className="filters-top">
+          <input
+            type="search"
+            className="filters-search"
+            value={searchValue}
+            onChange={(e) => setFilter("q", e.target.value)}
+            placeholder="Search player, number, type…"
+            aria-label="Search cards"
+          />
+          <button
+            type="button"
+            className={`btn filters-toggle-btn${filtersAreActive ? " filters-active" : ""}`}
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-expanded={filtersOpen}
+          >
+            {filtersAreActive ? "Filters ●" : "Filters"}
+          </button>
+        </div>
+
+        <div className={`filters-dropdowns${filtersOpen ? " open" : ""}`}>
           <select
             value={ownershipFilter}
             onChange={(e) => setFilter("owned", e.target.value)}
@@ -651,6 +725,7 @@ function SetViewer({
             <option value="recent">Sort: Recently added</option>
           </select>
         </div>
+
         <p className="filter-count">
           Showing {visibleCards.length} of {selectedSet.totalCards} card
           {selectedSet.totalCards !== 1 ? "s" : ""}
@@ -666,6 +741,7 @@ function SetViewer({
         </p>
       </section>
 
+      {/* Bulk actions */}
       {visibleCards.length > 0 && (
         <div className="bulk-actions">
           <span>
@@ -675,14 +751,14 @@ function SetViewer({
           </span>
           <button
             type="button"
-            className="btn btn-dark"
+            className="btn btn-dark bulk-btn"
             onClick={markAllVisible}
           >
             Mark all as owned
           </button>
           <button
             type="button"
-            className={`btn${clearPending ? " btn-danger" : ""}`}
+            className={`btn bulk-btn${clearPending ? " btn-danger" : ""}`}
             onClick={requestClear}
             title={
               clearPending
@@ -707,6 +783,7 @@ function SetViewer({
         </div>
       )}
 
+      {/* Cards */}
       {isListView ? (
         <section className="card-list">
           {visibleCards.map((card) => {
@@ -874,6 +951,7 @@ function App() {
   const [toastVisible, setToastVisible] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
   const [importMode, setImportMode] = useState("replace");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const toastTimer = useRef(null);
   const saveTimer = useRef(null);
 
@@ -889,7 +967,6 @@ function App() {
   useEffect(() => {
     prefsStore.save(prefs);
   }, [prefs]);
-
   function setPref(key, value) {
     setPrefs((p) => ({ ...p, [key]: value }));
   }
@@ -1007,7 +1084,6 @@ function App() {
           const incoming = parsed.version && parsed.data ? parsed.data : parsed;
           if (typeof incoming !== "object" || Array.isArray(incoming))
             throw new Error("Invalid format");
-
           if (importMode === "replace") {
             setCollection(incoming);
             showToast("Collection replaced from file!");
@@ -1019,9 +1095,7 @@ function App() {
                 Object.entries(cards).forEach(([cardId, cardData]) => {
                   const existingQty = next[setId][cardId]?.quantity ?? 0;
                   const incomingQty = cardData?.quantity ?? 0;
-                  if (incomingQty > existingQty) {
-                    next[setId][cardId] = cardData;
-                  }
+                  if (incomingQty > existingQty) next[setId][cardId] = cardData;
                 });
               });
               return next;
@@ -1045,7 +1119,15 @@ function App() {
       q: "",
       sort: "default",
     });
+    setDrawerOpen(false);
   }
+
+  const navProps = {
+    catalog,
+    allSetStats,
+    selectedSet,
+    onSelectSet: selectSet,
+  };
 
   return (
     <div className="app-shell">
@@ -1131,8 +1213,73 @@ function App() {
         </section>
       </header>
 
+      {/* ── Mobile toolbar (hidden on desktop) ── */}
+      <div className="mobile-toolbar">
+        <button
+          type="button"
+          className="btn mobile-nav-btn"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Browse collections"
+        >
+          ☰{" "}
+          {selectedSet
+            ? `${selectedSet.teamName} — ${selectedSet.setName}`
+            : "Browse"}
+        </button>
+        <div className="mobile-toolbar-right">
+          <div className="view-toggle">
+            <button
+              type="button"
+              className={`view-btn${prefs.viewMode === "grid" ? " active" : ""}`}
+              onClick={() => setPref("viewMode", "grid")}
+              aria-label="Grid view"
+            >
+              ⊞
+            </button>
+            <button
+              type="button"
+              className={`view-btn${prefs.viewMode === "list" ? " active" : ""}`}
+              onClick={() => setPref("viewMode", "list")}
+              aria-label="List view"
+            >
+              ≡
+            </button>
+          </div>
+          <button
+            type="button"
+            className="btn theme-toggle"
+            onClick={() =>
+              setPref("theme", prefs.theme === "light" ? "dark" : "light")
+            }
+            aria-label="Toggle dark mode"
+          >
+            {prefs.theme === "light" ? "🌙" : "☀️"}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Mobile drawer ── */}
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <div className="drawer-settings">
+          <label htmlFor="drawer-ownership" className="settings-label">
+            Default filter
+          </label>
+          <select
+            id="drawer-ownership"
+            value={prefs.defaultOwnership}
+            onChange={(e) => setPref("defaultOwnership", e.target.value)}
+          >
+            <option value="all">All cards</option>
+            <option value="owned">Owned only</option>
+            <option value="missing">Missing only</option>
+            <option value="duplicates">Duplicates only</option>
+          </select>
+        </div>
+        <TeamNavContent {...navProps} />
+      </MobileDrawer>
+
       <main className="app-body">
-        {/* Left: team nav */}
+        {/* Desktop sidebar */}
         <aside className="app-sidebar">
           <div className="settings-bar panel">
             <div className="settings-group">
@@ -1150,7 +1297,6 @@ function App() {
                 <option value="duplicates">Duplicates only</option>
               </select>
             </div>
-
             <div className="settings-group">
               <span className="settings-label">View</span>
               <div className="view-toggle">
@@ -1175,16 +1321,12 @@ function App() {
               </div>
             </div>
           </div>
-
-          <TeamNav
-            catalog={catalog}
-            allSetStats={allSetStats}
-            selectedSet={selectedSet}
-            onSelectSet={selectSet}
-          />
+          <nav className="team-nav panel">
+            <TeamNavContent {...navProps} />
+          </nav>
         </aside>
 
-        {/* Right: set viewer */}
+        {/* Content */}
         <div className="app-content">
           {selectedSet && (
             <SetViewer

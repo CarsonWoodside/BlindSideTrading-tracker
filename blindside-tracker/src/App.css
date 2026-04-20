@@ -8,12 +8,12 @@
 }
 
 /* ─────────────────────────────────────────────
-   Two-column body layout
+   Two-column body layout (desktop)
 ───────────────────────────────────────────── */
 
 .app-body {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 360px 1fr;
   gap: 24px;
   align-items: start;
 }
@@ -29,6 +29,137 @@
 
 .app-content {
   min-width: 0;
+}
+
+/* ─────────────────────────────────────────────
+   Mobile toolbar (hidden on desktop)
+───────────────────────────────────────────── */
+
+.mobile-toolbar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.mobile-nav-btn {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  justify-content: flex-start;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mobile-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   Drawer
+───────────────────────────────────────────── */
+
+.drawer-backdrop {
+  display: block;
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 201;
+  width: min(85vw, 360px);
+  background: var(--panel-solid);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.drawer.open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.drawer-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-h);
+}
+
+.drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--panel-solid);
+  color: var(--text-h);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.drawer-close:hover {
+  background: var(--code-bg);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.drawer-settings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawer-settings select {
+  flex: 1;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 12px;
+  background: var(--panel-solid);
+  color: var(--text-h);
+  font: inherit;
 }
 
 /* ─────────────────────────────────────────────
@@ -92,7 +223,7 @@
 }
 
 /* ─────────────────────────────────────────────
-   Collection progress (dark bar in hero)
+   Collection progress bar (hero)
 ───────────────────────────────────────────── */
 
 .collection-progress {
@@ -175,8 +306,6 @@
 }
 
 .panel-heading select,
-.filters select,
-.filters input,
 .collection-toggle {
   min-height: 42px;
   border: 1px solid var(--border);
@@ -186,7 +315,7 @@
 }
 
 /* ─────────────────────────────────────────────
-   Settings bar (now lives in sidebar)
+   Settings bar (desktop sidebar)
 ───────────────────────────────────────────── */
 
 .settings-bar {
@@ -211,7 +340,6 @@
   white-space: nowrap;
 }
 
-/* View grid/list toggle */
 .view-toggle {
   display: flex;
   border: 1px solid var(--border);
@@ -312,11 +440,6 @@
   color: var(--muted);
 }
 
-.team-nav-header.open .team-nav-header-top strong {
-  color: var(--text-h);
-}
-
-/* Seasons */
 .team-nav-seasons {
   padding-bottom: 10px;
 }
@@ -335,7 +458,6 @@
   margin: 0;
 }
 
-/* Individual set button within the nav */
 .team-nav-set-btn {
   width: 100%;
   display: grid;
@@ -454,9 +576,8 @@
 
 .content-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(80px, 1fr));
+  grid-template-columns: repeat(3, minmax(70px, 1fr));
   gap: 16px;
-  flex-wrap: wrap;
 }
 
 .content-stats div {
@@ -474,23 +595,57 @@
    Filters
 ───────────────────────────────────────────── */
 
-.filters {
+.filters-panel {
   display: grid;
-  grid-template-columns: minmax(240px, 1.3fr) repeat(4, minmax(140px, 1fr));
   gap: 12px;
-  align-items: center;
-  border-radius: var(--radius-lg);
 }
 
-.filters input,
-.filters select,
-.panel-heading select {
+.filters-top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filters-search {
+  flex: 1;
+  min-height: 42px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 0 14px;
+  background: var(--panel-solid);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.filters-toggle-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.filters-toggle-btn.filters-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Dropdowns — hidden by default, shown when open (mobile).
+   On desktop they're always visible. */
+.filters-dropdowns {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.filters-dropdowns select {
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 14px;
+  background: var(--panel-solid);
+  color: var(--text-h);
+  font: inherit;
 }
 
 .filter-count {
-  grid-column: 1 / -1;
   font-size: 0.82rem;
   color: var(--muted);
   padding: 0 2px;
@@ -638,6 +793,10 @@
   background: linear-gradient(160deg, #f5f5f5 0%, #d9d9d6 100%);
 }
 
+.card-artwork--clickable {
+  cursor: zoom-in;
+}
+
 .card-artwork.placeholder {
   display: grid;
   place-items: center;
@@ -662,6 +821,30 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.72);
+}
+
+/* ─────────────────────────────────────────────
+   Lightbox
+───────────────────────────────────────────── */
+
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.lightbox-img {
+  max-width: min(92vw, 520px);
+  max-height: 90svh;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+  cursor: default;
 }
 
 /* ─────────────────────────────────────────────
@@ -875,7 +1058,7 @@
 }
 
 /* ─────────────────────────────────────────────
-   Export / import group
+   Export / import
 ───────────────────────────────────────────── */
 
 .data-actions {
@@ -943,7 +1126,7 @@
 }
 
 /* ─────────────────────────────────────────────
-   Shared muted text
+   Shared muted / badges
 ───────────────────────────────────────────── */
 
 .set-meta,
@@ -951,14 +1134,12 @@
   color: var(--muted);
 }
 
-/* last updated label */
 .set-tile-updated {
   font-size: 0.73rem;
   color: var(--muted);
   margin-top: 2px;
 }
 
-/* duplicate badge */
 .dupe-badge {
   display: inline-flex;
   align-items: center;
@@ -973,7 +1154,7 @@
 }
 
 /* ─────────────────────────────────────────────
-   Dark mode overrides
+   Dark mode
 ───────────────────────────────────────────── */
 
 [data-theme="dark"] .hero-panel {
@@ -1002,9 +1183,9 @@
   border-color: #0a0a0a;
 }
 
+[data-theme="dark"] .filters-search,
+[data-theme="dark"] .filters-dropdowns select,
 [data-theme="dark"] .panel-heading select,
-[data-theme="dark"] .filters select,
-[data-theme="dark"] .filters input,
 [data-theme="dark"] .btn,
 [data-theme="dark"] select,
 [data-theme="dark"] input {
@@ -1103,43 +1284,89 @@
   background: #111111;
 }
 
-/* ─────────────────────────────────────────────
-   Responsive
-───────────────────────────────────────────── */
-
-@media (max-width: 1200px) {
-  .filters {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .filters input[type="search"] {
-    grid-column: 1 / -1;
-  }
+[data-theme="dark"] .drawer {
+  background: var(--panel-solid);
+  border-color: var(--border);
 }
 
-@media (max-width: 900px) {
+[data-theme="dark"] .drawer-close {
+  background: #252520;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .drawer-settings select {
+  background: #252520;
+  color: var(--text-h);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .filters-toggle-btn.filters-active {
+  color: #f0f0ec;
+  border-color: #f0f0ec;
+}
+
+/* ─────────────────────────────────────────────
+   Responsive — tablet (≤ 960px): collapse sidebar
+───────────────────────────────────────────── */
+
+@media (max-width: 960px) {
   .app-body {
     grid-template-columns: 1fr;
   }
 
+  /* Hide desktop sidebar, show mobile toolbar + drawer */
   .app-sidebar {
-    position: static;
-    max-height: none;
-    overflow-y: visible;
+    display: none;
+  }
+
+  .mobile-toolbar {
+    display: flex;
+  }
+
+  .drawer-backdrop {
+    display: block;
+  }
+
+  /* Filters always expanded on tablet/mobile */
+  .filters-dropdowns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Slightly smaller card grid */
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }
 
-@media (max-width: 720px) {
+/* ─────────────────────────────────────────────
+   Responsive — mobile (≤ 600px)
+───────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  #root {
+    width: calc(100% - 20px);
+    padding-top: 12px;
+  }
+
   .hero-panel,
   .panel,
   .content-header {
-    padding: 18px;
+    padding: 16px;
   }
 
-  .brand-block,
-  .panel-heading,
-  .content-header {
+  .brand-block {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .brand-logo {
+    width: 100px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
   }
 
   .collection-progress-top {
@@ -1151,36 +1378,80 @@
     align-items: flex-start;
   }
 
-  .filters {
-    grid-template-columns: 1fr;
-  }
-
-  .filters input[type="search"] {
-    grid-column: unset;
+  /* Stat grid: show only 3 on mobile (desktop-only ones hidden) */
+  .stat-desktop-only {
+    display: none;
   }
 
   .content-stats {
     grid-template-columns: repeat(3, 1fr);
   }
 
+  /* Filters stacked on small screens */
+  .filters-dropdowns {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Two-column card grid on phone */
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* Tighten up card body text */
+  .tracker-card-body {
+    padding: 10px;
+    gap: 4px;
+  }
+
+  .tracker-card-body h3 {
+    font-size: 0.88rem;
+  }
+
+  .tracker-card-body p {
+    font-size: 0.78rem;
+  }
+
+  .card-topline {
+    font-size: 0.68rem;
+  }
+
+  .tracker-actions {
+    padding: 10px;
+  }
+
+  .collection-toggle {
+    min-height: 52px;
+    padding: 10px 12px;
+  }
+
+  .toggle-label {
+    font-size: 0.88rem;
+  }
+
+  .toggle-state {
+    font-size: 0.75rem;
+  }
+
+  /* Bulk actions stacked */
   .bulk-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+    padding: 12px 16px;
   }
 
   .bulk-actions > span {
     margin-right: 0;
   }
 
-  .data-actions {
-    flex-direction: column;
-    align-items: stretch;
+  .bulk-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
   }
 
-  .settings-bar {
-    flex-wrap: wrap;
-  }
-
+  /* List view: hide secondary meta columns */
   .list-meta,
   .list-rarity {
     display: none;
@@ -1188,29 +1459,32 @@
 
   .list-row {
     gap: 8px;
+    padding: 10px 12px;
   }
-}
 
-.card-artwork--clickable {
-  cursor: zoom-in;
-}
+  /* Data actions stacked */
+  .data-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.lightbox-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: zoom-out;
-}
+  /* Mobile toolbar spacing */
+  .mobile-toolbar {
+    padding: 6px 0;
+  }
 
-.lightbox-img {
-  max-width: min(90vw, 500px);
-  max-height: 90svh;
-  object-fit: contain;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
-  cursor: default;
+  /* Drawer full-width on very small screens */
+  .drawer {
+    width: 100vw;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    inset: auto 0 0 0;
+    transform: translateY(100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 85svh;
+  }
+
+  .drawer.open {
+    transform: translateY(0);
+  }
 }
