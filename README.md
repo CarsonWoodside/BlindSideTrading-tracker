@@ -1,6 +1,6 @@
 # BlindSide Card Tracker
 
-A modern, responsive web application for sports card collectors to track their collections, monitor set completion, and manage duplicates. Built with React and Vite, it features a clean UI with dark mode support and local persistence.
+A modern, responsive web application for Blindside card collectors to track their collections, monitor set completion, and manage duplicates. Built with React and Vite, it features a clean UI with dark mode support and local persistence.
 
 ## 🚀 Features
 
