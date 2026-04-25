@@ -1,0 +1,66 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Jake Kupsky,Base,1 - Common
+B-2,Adam Long,Base,1 - Common
+B-3,Eamon Mcadam,Base,1 - Common
+B-4,Travis Brown,Base,1 - Common
+B-5,Stephen Calisti,Base,1 - Common
+B-6,Mike Crocock,Base,1 - Common
+B-7,Charlie Dodero,Base,1 - Common
+B-8,Kyle Locke,Base,1 - Common
+B-9,Marcus Tesink,Base,1 - Common
+B-10,Matt Alvaro,Base,1 - Common
+B-11,Daniel Catenacci,Base,1 - Common
+B-12,Jake Coughler,Base,1 - Common
+B-13,Brett Ferguson,Base,1 - Common
+B-14,Lewis Hook,Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+AB-1,Paul Dixon,Alt Base,1 - Common
+AB-2,Andrew Hemmings,Alt Base,1 - Common
+AB-3,Brett Welychka,Alt Base,1 - Common
+AB-4,Joshua Waller,Alt Base,1 - Common
+AB-5,Daniel Tedesco,Alt Base,1 - Common
+AB-6,Sam Talbot,Alt Base,1 - Common
+AB-7,Ryan Tait,Alt Base,1 - Common
+AB-8,Ethan Strang,Alt Base,1 - Common
+AB-9,Sean Norris,Alt Base,1 - Common
+AB-10,Lewis Hook,Alt Base,1 - Common
+AB-11,Brett Ferguson,Alt Base,1 - Common
+AB-12,Jake Coughler,Alt Base,1 - Common
+AB-13,Daniel Catenacci,Alt Base,1 - Common
+AB-14,Matt Alvaro,Alt Base,1 - Common
+PM-1,Jake Coughler,Playmaker,2 - Uncommon
+CC-1,Marcus Tesink,Canvas,2 - Uncommon
+CC-2,Sam Talbot,Canvas,2 - Uncommon
+CC-3,Travis Brown,Canvas,2 - Uncommon
+CC-4,Brett Ferguson,Canvas,2 - Uncommon
+CC-5,Brett Welychka,Canvas,2 - Uncommon
+CC-6,Jake Kupsky,Canvas,2 - Uncommon
+FF-1,Brett Ferguson,Fan Faves,2 - Uncommon
+FF-2,Kyle Locke,Fan Faves,2 - Uncommon
+PT-1,Ethan Strang,Portrait,2 - Uncommon
+PT-2,Stephen Calisti,Portrait,2 - Uncommon
+PT-3,Kyle Locke,Portrait,2 - Uncommon
+PT-4,Matt Alvaro,Portrait,2 - Uncommon
+SH-1,Brett Welychka,Sharpshooter,2 - Uncommon
+PS-1,Josh Waller,Poster,2 - Uncommon
+PS-2,Ryan Tait,Poster,2 - Uncommon
+PS-3,Jake Coughler,Poster,2 - Uncommon
+PS-4,Brett Ferguson,Poster,2 - Uncommon
+AS-1,Jake Coughler,All Star,3 - Rare
+AS-2,Daniel Tedesco,All Star,3 - Rare
+OW-1,Sam Talbot,Ones To Watch,3 - Rare
+OW-2,Ethan Strang,Ones To Watch,3 - Rare
+SS-1,Eamon Mcadam,Signature Series,3 - Rare
+SS-2,Mike Crocock,Signature Series,3 - Rare
+SS-3,Matt Alvaro,Signature Series,3 - Rare
+SS-4,Lewis Hook,Signature Series,3 - Rare
+SS-5,Daniel Tedesco,Signature Series,3 - Rare
+SS-6,Brett Welychka,Signature Series,3 - Rare
+EH-1,Charlie Dodero,Exceptional Hits,4 - Ultra Rare
+EH-2,Sean Norris,Exceptional Hits,4 - Ultra Rare
+SP-1,Ryan Tait,Spectrum,4 - Ultra Rare
+SP-2,Mike Crocock,Spectrum,4 - Ultra Rare
+DD-1,Catenacci Coughler,Dynamic Duo,4 - Ultra Rare
+LD-1,Ferguson Locke Tait,Leadership,4 - Ultra Rare
+EA-1,Jake Kupsky,Exclusive Auto,4 - Ultra Rare
+EA-2,Joshua Waller,Exclusive Auto,4 - Ultra Rare
