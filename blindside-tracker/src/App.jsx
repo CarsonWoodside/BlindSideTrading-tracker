@@ -1171,7 +1171,7 @@ function App() {
               </div>
               <button
                 type="button"
-                className="btn theme-toggle"
+                className="btn theme-toggle hero-theme-toggle"
                 onClick={() =>
                   setPref("theme", prefs.theme === "light" ? "dark" : "light")
                 }
