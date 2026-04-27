@@ -1,0 +1,66 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Ben Bowns,Base,1 - Common
+B-2,Mac Carruth,Base,1 - Common
+B-3,Josh Batch,Base,1 - Common
+B-4,Cody Donaghey,Base,1 - Common
+B-5,Gleason Fournier,Base,1 - Common
+B-6,Jarrod Gourley,Base,1 - Common
+B-7,Andrew MacWilliam,Base,1 - Common
+B-8,Evan Mosey,Base,1 - Common
+B-9,Mark Richardson,Base,1 - Common
+B-10,Bayley Harewood,Base,1 - Common
+B-11,Joe Tomalin,Base,1 - Common
+B-12,Ryan Barrow,Base,1 - Common
+B-13,Riley Brandt,Base,1 - Common
+B-14,Tyler Busch,Base,1 - Common
+AB-1,Pete Russell,Alt Base,1 - Common
+AB-2,Matthew Myers,Alt Base,1 - Common
+AB-3,Hunter Shinkaruk,Alt Base,1 - Common
+AB-4,Cole Sanford,Alt Base,1 - Common
+AB-5,Brett Perlini,Alt Base,1 - Common
+AB-6,Kohen Olischefski,Alt Base,1 - Common
+AB-7,Zach O'Brien,Alt Base,1 - Common
+AB-8,Joey Martin,Alt Base,1 - Common
+AB-9,Josh MacDonald,Alt Base,1 - Common
+AB-10,Reid Duke,Alt Base,1 - Common
+AB-11,Sam Duggan,Alt Base,1 - Common
+AB-12,Ben Davies,Alt Base,1 - Common
+AB-13,Tyler Busch,Alt Base,1 - Common
+AB-14,Riley Brandt,Alt Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-1,Tyler Busch,Canvas,2 - Uncommon
+CC-2,Zach O'Brien,Canvas,2 - Uncommon
+CC-3,Brett Perlini,Canvas,2 - Uncommon
+CC-4,Evan Mosey,Canvas,2 - Uncommon
+CC-5,Riley Brandt,Canvas,2 - Uncommon
+CC-6,Hunter Shinkaruk,Canvas,2 - Uncommon
+PT-1,Mac Carruth,Portrait,2 - Uncommon
+PT-2,Cody Donaghey,Portrait,2 - Uncommon
+PT-3,Andrew MacWilliam,Portrait,2 - Uncommon
+PT-4,Ben Davies,Portrait,2 - Uncommon
+PS-1,Ben Bowns,Poster,2 - Uncommon
+PS-2,Hunter Shinkaruk,Poster,2 - Uncommon
+PS-3,Joey Martin,Poster,2 - Uncommon
+PS-4,Evan Mosey,Poster,2 - Uncommon
+FF-1,Mark Richardson,Fan Faves,2 - Uncommon
+FF-2,Ben Bowns,Fan Faves,2 - Uncommon
+PM-1,Joey Martin,Playmaker,2 - Uncommon
+SH-1,Reid Duke,Sharpshooter,2 - Uncommon
+HS-1,Sam Duggan,Hot Shots,2 - Uncommon
+AS-1,Brett Perlini,All Star,3 - Rare
+AS-2,Andrew MacWilliam,All Star,3 - Rare
+OW-1,Joe Tomalin,Ones To Watch,3 - Rare
+SS-1,Mac Carruth,Signature Series,3 - Rare
+SS-2,Cody Donaghey,Signature Series,3 - Rare
+SS-3,Tyler Busch,Signature Series,3 - Rare
+SS-4,Gleason Fournier,Signature Series,3 - Rare
+SS-5,Riley Brandt,Signature Series,3 - Rare
+SS-6,Brett Perlini,Signature Series,3 - Rare
+SP-1,Gleason Fournier,Spectrum,4 - Ultra Rare
+SP-2,Josh Batch,Spectrum,4 - Ultra Rare
+LD-1,Richardson MacWilliam Duggan Martin,Leadership,4 - Ultra Rare
+DD-1,O'Brien Shinkaruk,Dynamic Duos,4 - Ultra Rare
+EA-1,Cole Sanford,Exclusive Autos,4 - Ultra Rare
+EA-2,Evan Mosey,Exclusive Autos,4 - Ultra Rare
+EH-1,Ben Bowns,Exceptional Hits,4 - Ultra Rare
+EH-2,Jarrod Gourley,Exceptional Hits,4 - Ultra Rare
