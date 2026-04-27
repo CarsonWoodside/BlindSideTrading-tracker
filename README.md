@@ -26,6 +26,6 @@ A modern, responsive web application for Blindside card collectors to track thei
 
 - **Framework**: [React](https://react.dev/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
+- **Hosting**: [Vercel](https://vercel.com/)
 - **Styling**: Modern CSS with Custom Properties (Variables)
 - **Typography**: Space Grotesk (headings) and IBM Plex Mono (monospaced data).
-
