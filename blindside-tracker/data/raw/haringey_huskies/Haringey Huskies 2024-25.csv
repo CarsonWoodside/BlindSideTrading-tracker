@@ -1,0 +1,40 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Marton Szasz,Base,1 - Common
+B-2,Bryn Griffiths,Base,1 - Common
+B-3,Peter Toth,Base,1 - Common
+B-4,James Hepburn,Base,1 - Common
+B-5,Matt Hepburn,Base,1 - Common
+B-6,Ryan Payne,Base,1 - Common
+B-7,Luke Martin,Base,1 - Common
+B-8,Corey Taylor,Base,1 - Common
+B-9,Stuart Appleby,Base,1 - Common
+B-10,Jaden Boolkah,Base,1 - Common
+B-11,Stephen Woodford,Base,1 - Common
+B-12,Joe Tearall,Base,1 - Common
+B-13,Conner Smith,Base,1 - Common
+B-14,David Wride,Base,1 - Common
+B-15,Ben Beldecos,Base,1 - Common
+B-16,Dylan Phillips,Base,1 - Common
+B-17,Robert Rejna,Base,1 - Common
+B-18,Matt France,Base,1 - Common
+B-19,Brad Hildreth,Base,1 - Common
+B-20,Joe Willingham,Base,1 - Common
+B-21,Oliver Cooper,Base,1 - Common
+B-22,Leo De Souza Saoncella,Base,1 - Common
+B-23,Naomi Healey,Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-1,David Wride,Canvas,2 - Uncommon
+CC-2,Joe Tearall,Canvas,2 - Uncommon
+PT-1,Marton Szasz,Portrait,2 - Uncommon
+PT-2,Stephen Woodford,Portrait,2 - Uncommon
+OW-1,Ben Beldecos,Ones To Watch,3 - Rare
+OW-2,Marton Szasz,Ones To Watch,3 - Rare
+HS-1,Conner Smith,Hot Shots,2 - Uncommon
+SP-1,Matt Hepburn,Spectrum,4 - Ultra Rare
+SP-2,David Wride,Spectrum,4 - Ultra Rare
+SS-1,Stuart Appleby,Signature Series,3 - Rare
+SS-2,Naomi Healey,Signature Series,3 - Rare
+SS-3,Stephen Woodford,Signature Series,3 - Rare
+EA,Conner Smith,Exclusive Autos,4 - Ultra Rare
+EH-1,Joe Willingham,Exceptional Hits,4 - Ultra Rare
+EH-2,Matt France,Exceptional Hits,4 - Ultra Rare
