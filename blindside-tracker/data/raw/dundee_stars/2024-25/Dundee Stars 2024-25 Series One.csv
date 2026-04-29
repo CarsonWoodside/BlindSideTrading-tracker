@@ -1,0 +1,66 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Jarrett Fiske,Base,1 - Common
+B-2,Richard Sabol,Base,1 - Common
+B-3,Drydn Dow,Base,1 - Common
+B-4,Kris Inglis,Base,1 - Common
+B-5,Cole MacDonald,Base,1 - Common
+B-6,Craig Moore,Base,1 - Common
+B-7,Ben O’Connor,Base,1 - Common
+B-8,Xavier Pouliot,Base,1 - Common
+B-9,Kyle Pouncy,Base,1 - Common
+B-10,Domenic Alberga,Base,1 - Common
+B-11,Jake Elmer,Base,1 - Common
+B-12,Craig Garrigan,Base,1 - Common
+B-13,Brett Gravelle,Base,1 - Common
+B-14,Brendan Harms,Base,1 - Common
+AB-1,Marc LeFebvre,Alt Base,1 - Common
+AB-2,Keanu Yamamoto,Alt Base,1 - Common
+AB-3,Zach Tsekos,Alt Base,1 - Common
+AB-4,Philippe Sanche,Alt Base,1 - Common
+AB-5,Alex Tonge,Alt Base,1 - Common
+AB-6,Brogan O’Brien,Alt Base,1 - Common
+AB-7,Jonathan McBean,Alt Base,1 - Common
+AB-8,Kameron Kielly,Alt Base,1 - Common
+AB-9,Brendan Harms,Alt Base,1 - Common
+AB-10,Brett Gravelle,Alt Base,1 - Common
+AB-11,Craig Garrigan,Alt Base,1 - Common
+AB-12,Jake Elmer,Alt Base,1 - Common
+AB-13,Domenic Alberga,Alt Base,1 - Common
+AB-14,Kyle Pouncy,Alt Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-1,Jarrett Fiske,Canvas,2 - Uncommon
+CC-2,Philippe Sanche,Canvas,2 - Uncommon
+CC-3,Ben O’Connor,Canvas,2 - Uncommon
+CC-4,Craig Garrigan,Canvas,2 - Uncommon
+CC-5,Brendan Harms,Canvas,2 - Uncommon
+CC-6,Alex Tonge,Canvas,2 - Uncommon
+PT-1,Richard Sabol,Portrait,2 - Uncommon
+PT-2,Kyle Pouncy,Portrait,2 - Uncommon
+PT-3,Jake Elmer,Portrait,2 - Uncommon
+PT-4,Jonathan McBean,Portrait,2 - Uncommon
+PS-1,Richard Sabol,Poster,2 - Uncommon
+PS-2,Drydn Dow,Poster,2 - Uncommon
+PS-3,Domenic Alberga,Poster,2 - Uncommon
+PS-4,Zach Tsekos,Poster,2 - Uncommon
+FF-1,Drydn Dow,Fan Faves,2 - Uncommon
+FF-2,Ben O’Connor,Fan Faves,2 - Uncommon
+PM-1,Domenic Alberga,Playmaker,2 - Uncommon
+SH-1,Jake Elmer,Sharpshooter,2 - Uncommon
+SP-1,Craig Moore,Spectrum,4 - Ultra Rare
+SP-2,Kris Inglis,Spectrum,4 - Ultra Rare
+AS-1,Drydn Dow,All Star,3 - Rare
+AS-2,Domenic Alberga,All Star,3 - Rare
+OW-1,Kameron Kielly,Ones To Watch,3 - Rare
+HS-1,Craig Garrigan,Hot Shots,2 - Uncommon
+SS-1,Richard Sabol,Signature Series,3 - Rare
+SS-2,Kris Inglis,Signature Series,3 - Rare
+SS-3,Ben O’Connor,Signature Series,3 - Rare
+SS-4,Craig Moore,Signature Series,3 - Rare
+SS-5,Alex Tonge,Signature Series,3 - Rare
+SS-6,Keanu Yamamoto,Signature Series,3 - Rare
+LD-1,Dow Alberga Harms,Leadership,4 - Ultra Rare
+DD-1,Alberga Elmer,Dynamic Duos,4 - Ultra Rare
+EA-1,Jarrett Fiske,Exclusive Autos,4 - Ultra Rare
+EA-2,Zach Tsekos,Exclusive Autos,4 - Ultra Rare
+EH-1,Ben O’Connor,Exceptional Hits,4 - Ultra Rare
+EH-2,Brett Gravelle,Exceptional Hits,4 - Ultra Rare
