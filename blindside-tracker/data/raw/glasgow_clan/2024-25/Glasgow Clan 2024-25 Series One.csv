@@ -1,0 +1,65 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Landon Bow,Base,1 - Common
+B-2,Lucas Brine,Base,1 - Common
+B-3,Simon Despres,Base,1 - Common
+B-4,Joseph Hazeldine,Base,1 - Common
+B-5,Reece Kelly,Base,1 - Common
+B-6,Darien Kielb,Base,1 - Common
+B-7,Chris McKay,Base,1 - Common
+B-8,Steven Seigo,Base,1 - Common
+B-9,Matt Stief,Base,1 - Common
+B-10,Liam Finlay,Base,1 - Common
+B-11,Alex Forbes,Base,1 - Common
+B-12,Gary Haden,Base,1 - Common
+B-13,Mitchell Heard,Base,1 - Common
+B-14,Keaton Jameson,Base,1 - Common
+AB-1,Corey Neilson,Alt Base,1 - Common
+AB-2,Mike Sirant,Alt Base,1 - Common
+AB-3,Cole Ully,Alt Base,1 - Common
+AB-4,Deven Sideroff,Alt Base,1 - Common
+AB-5,Rylan Schwartz,Alt Base,1 - Common
+AB-6,Nick Prkusic,Alt Base,1 - Common
+AB-7,Michael Pelech,Alt Base,1 - Common
+AB-8,Felix Pare,Alt Base,1 - Common
+AB-9,Tyson McLellan,Alt Base,1 - Common
+AB-10,Rob Lachowicz,Alt Base,1 - Common
+AB-11,Keaton Jameson,Alt Base,1 - Common
+AB-12,Mitchell Heard,Alt Base,1 - Common
+AB-13,Gary Haden,Alt Base,1 - Common
+AB-14,Alex Forbes,Alt Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-1,Reece Kelly,Canvas,2 - Uncommon
+CC-2,Felix Pare,Canvas,2 - Uncommon
+CC-3,Landon Bow,Canvas,2 - Uncommon
+CC-4,Rylan Schwartz,Canvas,2 - Uncommon
+CC-5,Cole Ully,Canvas,2 - Uncommon
+CC-6,Liam Finlay,Canvas,2 - Uncommon
+PT-1,Cade Neilson,Portrait,2 - Uncommon
+PT-2,Gary Haden,Portrait,2 - Uncommon
+PT-3,Joseph Hazeldine,Portrait,2 - Uncommon
+PT-4,Rob Lachowicz,Portrait,2 - Uncommon
+PS-1,Landon Bow,Poster,2 - Uncommon
+PS-2,Gary Haden,Poster,2 - Uncommon
+PS-3,Simon Despres,Poster,2 - Uncommon
+PS-4,Alex Forbes,Poster,2 - Uncommon
+FF-1,Gary Haden,Fan Faves,2 - Uncommon
+FF-2,Rob Lachowicz,Fan Faves,2 - Uncommon
+PM-1,Michael Pelech,Playmaker,2 - Uncommon
+SH-1,Deven Sideroff,Sharpshooter,2 - Uncommon
+SP-1,Keaton Jameson,Spectrum,4 - Ultra Rare
+SP-2,Alex Forbes,Spectrum,4 - Ultra Rare
+AS-1,Simon Despres,All Star,3 - Rare
+AS-2,Mitchell Heard,All Star,3 - Rare
+OW-1,Cade Neilson,Ones To Watch,3 - Rare
+HS-1,Gary Haden,Hot Shots,2 - Uncommon
+SS-1,Rob Lachowicz,Signature Series,3 - Rare
+SS-2,Felix Pare,Signature Series,3 - Rare
+SS-3,Landon Bow,Signature Series,3 - Rare
+SS-4,Joseph Hazeldine,Signature Series,3 - Rare
+SS-5,Reece Kelly,Signature Series,3 - Rare
+SS-6,Mitchell Heard,Signature Series,3 - Rare
+LD-1,Sideroff Seigo Pelech Ully,Leadership,4 - Ultra Rare
+DD-1,Pelech Finlay,Dynamic Duos,4 - Ultra Rare
+EA,Alex Forbes,Exclusive Autos,4 - Ultra Rare
+EH-1,Lucas Brine,Exceptional Hits,4 - Ultra Rare
+EH-2,Rob Lachowicz,Exceptional Hits,4 - Ultra Rare
