@@ -7,7 +7,7 @@ import sharp from "sharp";
 const [,, URL, TEAM, SEASON] = process.argv;
 
 if (!URL || !TEAM || !SEASON) {
-  console.error("❌ Usage: node scripts/importTeam.mjs <URL> <team_slug> <season>");
+  console.error("Usage: node scripts/importTeam.mjs <URL> <team_slug> <season>");
   process.exit(1);
 }
 
@@ -17,8 +17,8 @@ const csvPath = `./data/raw/${TEAM}/${SEASON}.csv`;
 await fs.ensureDir(baseDir);
 await fs.ensureDir(path.dirname(csvPath));
 
-console.log(`🚀 Importing: ${TEAM} ${SEASON}`);
-console.log(`🌐 Fetching: ${URL}`);
+console.log(`Importing: ${TEAM} ${SEASON}`);
+console.log(`Fetching: ${URL}`);
 
 // Card type + rarity mapping
 const CARD_MAP = {
@@ -64,7 +64,7 @@ let res;
 try {
   res = await axios.get(URL);
 } catch {
-  console.error("❌ Failed to fetch URL");
+  console.error("Failed to fetch URL");
   process.exit(1);
 }
 
@@ -125,11 +125,11 @@ $("h2.wpr-grid-item-title a").each((i, el) => {
   downloads.push((async () => {
     try {
       if (await fs.pathExists(filePath)) {
-        console.log(`⏭️ Skipping ${cardNumFormatted}`);
+        console.log(`Skipping ${cardNumFormatted}`);
         return;
       }
 
-      console.log(`⬇️ ${cardNumFormatted} - ${name}`);
+      console.log(`${cardNumFormatted} - ${name}`);
 
       const response = await axios({
         url: img,
@@ -141,7 +141,7 @@ $("h2.wpr-grid-item-title a").each((i, el) => {
         .toFile(filePath);
 
     } catch {
-      console.error(`❌ Failed ${cardNumFormatted}`);
+      console.error(`Failed ${cardNumFormatted}`);
     }
   })());
 });
@@ -152,6 +152,6 @@ await Promise.all(downloads);
 // Write CSV
 await fs.writeFile(csvPath, rows.join("\n"));
 
-console.log("✅ Done!");
-console.log(`📁 Images → ${baseDir}`);
-console.log(`📄 CSV → ${csvPath}`);
+console.log("Done!");
+console.log(`Images → ${baseDir}`);
+console.log(`CSV → ${csvPath}`);
