@@ -1,0 +1,46 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Max Wright,Base,1 - Common
+B-2,Dean Skinns,Base,1 - Common
+B-3,Brett Shepherd,Base,1 - Common
+B-4,Ty Cathcart,Base,1 - Common
+B-5,Josh Kelly,Base,1 - Common
+B-6,Oliver Knaggs,Base,1 - Common
+B-7,Marcus Mitchell,Base,1 - Common
+B-8,Stuart Mogg,Base,1 - Common
+B-9,Preston Tombs,Base,1 - Common
+B-10,Vanya Antonov,Base,1 - Common
+B-11,Marcel Balaz,Base,1 - Common
+B-12,Roman Cathcart,Base,1 - Common
+B-13,Sam Davies,Base,1 - Common
+B-14,Adam Erskine,Base,1 - Common
+B-15,Dominik Gabaj,Base,1 - Common
+B-16,Ollie Hemmings-Maher,Base,1 - Common
+B-17,Liam Morris,Base,1 - Common
+B-18,Josh Poole,Base,1 - Common
+B-19,Adam Rosbottom,Base,1 - Common
+B-20,Dan Rose,Base,1 - Common
+B-21,Josh Smith,Base,1 - Common
+B-22,Will Stead,Base,1 - Common
+B-23,Hallam Wilson,Base,1 - Common
+B-24,Ashley Tait,Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-1,Will Stead,Canvas,2 - Uncommon
+CC-2,Max Wright,Canvas,2 - Uncommon
+PT-1,Liam Morris,Portrait,2 - Uncommon
+PT-2,Marcus Mitchell,Portrait,2 - Uncommon
+PM-1,Dominik Gabaj,Playmaker,2 - Uncommon
+SH-1,Marcel Balaz,Sharpshooter,2 - Uncommon
+SP-1,Adam Rosbottom,Spectrum,4 - Ultra Rare
+SP-2,Stuart Mogg,Spectrum,4 - Ultra Rare
+SP-3,Dan Rose,Spectrum,4 - Ultra Rare
+OW-1,Josh Poole,Ones To Watch,3 - Rare
+OW-2,Ollie Hemmings-Maher,Ones To Watch,3 - Rare
+HS-1,Will Stead,Hot Shots,2 - Uncommon
+SS-1,Max Wright,Signature Series,3 - Rare
+SS-2,Stuart Mogg,Signature Series,3 - Rare
+SS-3,Marcel Balaz,Signature Series,3 - Rare
+SS-4,Dominik Gabaj,Signature Series,3 - Rare
+EA-1,Ollie Hemmings-Maher,Exclusive Autos,4 - Ultra Rare
+EA-2,Will Stead,Exclusive Autos,4 - Ultra Rare
+EH-1,Adam Erskine,Exceptional Hits,4 - Ultra Rare
+EH-2,Liam Morris,Exceptional Hits,4 - Ultra Rare
