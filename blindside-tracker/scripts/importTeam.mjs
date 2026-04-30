@@ -4,21 +4,70 @@ import fs from "fs-extra";
 import path from "path";
 import sharp from "sharp";
 
-const [,, URL, TEAM, SEASON] = process.argv;
+const [,, SOURCE_URL, TEAM, SEASON] = process.argv;
 
-if (!URL || !TEAM || !SEASON) {
+if (!SOURCE_URL || !TEAM || !SEASON) {
   console.error("Usage: node scripts/importTeam.mjs <URL> <team_slug> <season>");
   process.exit(1);
 }
 
-const baseDir = `./public/images/${TEAM}/${SEASON}/main`;
-const csvPath = `./data/raw/${TEAM}/${SEASON}.csv`;
+const SERIES_NUMBER_WORDS = {
+  one: "1",
+  two: "2",
+  three: "3",
+  four: "4",
+  five: "5"
+};
+
+function toTitleCase(value) {
+  return value
+    .split(/[_-]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function getChecklistSlug(url) {
+  try {
+    const { pathname } = new URL(url);
+    return pathname.split("/").filter(Boolean).at(-1) || "";
+  } catch {
+    return "";
+  }
+}
+
+function getSetMeta(url) {
+  const slug = getChecklistSlug(url);
+  const seriesMatch = slug.match(/series-([a-z]+)/i);
+
+  if (!seriesMatch) {
+    return {
+      fileLabel: "",
+      imageSlug: "main"
+    };
+  }
+
+  const seriesWord = seriesMatch[1].toLowerCase();
+  const seriesNumber = SERIES_NUMBER_WORDS[seriesWord] || seriesWord;
+  const seriesLabel = `Series ${toTitleCase(seriesWord)}`;
+
+  return {
+    fileLabel: ` ${seriesLabel}`,
+    imageSlug: `series${seriesNumber}`
+  };
+}
+
+const teamName = toTitleCase(TEAM);
+const setMeta = getSetMeta(SOURCE_URL);
+const csvFilename = `${teamName} ${SEASON}${setMeta.fileLabel}.csv`;
+const baseDir = path.join(".", "public", "images", TEAM, SEASON, setMeta.imageSlug);
+const csvPath = path.join(".", "data", "raw", TEAM, SEASON, csvFilename);
 
 await fs.ensureDir(baseDir);
 await fs.ensureDir(path.dirname(csvPath));
 
 console.log(`Importing: ${TEAM} ${SEASON}`);
-console.log(`Fetching: ${URL}`);
+console.log(`Fetching: ${SOURCE_URL}`);
 
 // Card type + rarity mapping
 const CARD_MAP = {
@@ -64,7 +113,7 @@ function getCardMeta(cardNumClean) {
 // Fetch page
 let res;
 try {
-  res = await axios.get(URL);
+  res = await axios.get(SOURCE_URL);
 } catch {
   console.error("Failed to fetch URL");
   process.exit(1);
