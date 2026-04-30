@@ -11,7 +11,7 @@ if (!URL || !TEAM || !SEASON) {
   process.exit(1);
 }
 
-const baseDir = `./public/images/${TEAM}/${SEASON}/series2`;
+const baseDir = `./public/images/${TEAM}/${SEASON}/main`;
 const csvPath = `./data/raw/${TEAM}/${SEASON}.csv`;
 
 await fs.ensureDir(baseDir);

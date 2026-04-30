@@ -1,0 +1,59 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Will Bray,Base,1 - Common
+B-2,Mat Robson,Base,1 - Common
+B-3,Terrance Amorosa,Base,1 - Common
+B-4,David Clements,Base,1 - Common
+B-5,Archie Hazeldine,Base,1 - Common
+B-6,Mike Kennedy,Base,1 - Common
+B-7,Alexander Kuqali,Base,1 - Common
+B-8,Jakob Stridsberg,Base,1 - Common
+B-9,Brandon Alderson,Base,1 - Common
+B-10,Brynley Capps,Base,1 - Common
+B-11,Grayson Constable,Base,1 - Common
+B-12,Jackson Cressey,Base,1 - Common
+B-13,Chase Gresock,Base,1 - Common
+B-14,Zach Heintz,Base,1 - Common
+B-15,Jack Hopkins,Base,1 - Common
+B-16,Morten Jürgens,Base,1 - Common
+B-17,Alessio Luciani,Base,1 - Common
+B-18,Zaine McKenzie,Base,1 - Common
+B-19,Michael Regush,Base,1 - Common
+B-20,Nick Seitz,Base,1 - Common
+B-21,Kim Tallberg,Base,1 - Common
+B-22,Kevin Moore,Base,1 - Common
+B-23,Zach Vinnell,Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-1,Jakob Stridsberg,Canvas,2 - Uncommon
+CC-2,Kim Tallberg,Canvas,2 - Uncommon
+CC-3,Mat Robson,Canvas,2 - Uncommon
+CC-4,Nick Seitz,Canvas,2 - Uncommon
+PT-1,Archie Hazeldine,Portrait,2 - Uncommon
+PT-2,David Clements,Portrait,2 - Uncommon
+PT-3,Alessio Luciani,Portrait,2 - Uncommon
+PT-4,Brandon Alderson,Portrait,2 - Uncommon
+PS-1,Mat Robson,Poster,2 - Uncommon
+PS-2,Kim Tallberg,Poster,2 - Uncommon
+PM-1,Chase Gresock,Playmaker,2 - Uncommon
+SH-1,Michael Regush,Sharpshooter,2 - Uncommon
+PR-1,Scorch,Unknown,Unknown
+PR-2,Kevin Moore,Unknown,Unknown
+AS-1,Mat Robson,All Star,3 - Rare
+AS-2,Brandon Alderson,All Star,3 - Rare
+OW-1,Zaine McKenzie,Ones To Watch,3 - Rare
+OW-2,Brynley Capps,Ones To Watch,3 - Rare
+OW-3,Jack Hopkins,Ones To Watch,3 - Rare
+OW-4,Archie Hazeldine,Ones To Watch,3 - Rare
+OW-5,Will Bray,Ones To Watch,3 - Rare
+OW-6,Billy Thorpe,Ones To Watch,3 - Rare
+SS-1,Mat Robson,Signature Series,3 - Rare
+SS-2,Grayson Constable,Signature Series,3 - Rare
+SS-3,Nick Seitz,Signature Series,3 - Rare
+SS-4,Terrance Amorosa,Signature Series,3 - Rare
+SS-5,Jakob Stridsberg,Signature Series,3 - Rare
+SS-6,Alessio Luciani,Signature Series,3 - Rare
+LD-1,Tallberg Clements Alderson,Leadership,4 - Ultra Rare
+DD-1,Gresock Regush,Dynamic Duos,4 - Ultra Rare
+EA-1,Archie Hazeldine,Exclusive Autos,4 - Ultra Rare
+EA-2,Jack Hopkins,Exclusive Autos,4 - Ultra Rare
+EH-1,Alessio Luciani,Exceptional Hits,4 - Ultra Rare
+EH-2,Zach Vinnell,Exceptional Hits,4 - Ultra Rare
