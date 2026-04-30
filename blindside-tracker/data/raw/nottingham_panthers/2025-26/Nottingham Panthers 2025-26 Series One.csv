@@ -1,0 +1,101 @@
+CardNumber,PlayerName,Type,Rarity
+B-1,Cooper Zech,Base,1 - Common
+B-2,Jason Grande,Base,1 - Common
+B-3,Zsombor Garát,Base,1 - Common
+B-4,Jordan Kelsall,Base,1 - Common
+B-5,Ollie Betteridge,Base,1 - Common
+B-6,Josh Tetlow,Base,1 - Common
+B-7,Matt Spencer,Base,1 - Common
+B-8,Tim Doherty,Base,1 - Common
+B-9,Mitch Fossier,Base,1 - Common
+B-10,Chase Pearson,Base,1 - Common
+B-11,Didrik Henbrant,Base,1 - Common
+B-12,Finlay Ulrick,Base,1 - Common
+B-13,Luca Sheldon,Base,1 - Common
+B-14,Ross Armour,Base,1 - Common
+AB-1,Danny Stewart,Alt Base,1 - Common
+AB-2,Linton Grant,Alt Base,1 - Common
+AB-3,Nolan Volcan,Alt Base,1 - Common
+AB-4,Brendan Harris,Alt Base,1 - Common
+AB-5,Matt Marcinew,Alt Base,1 - Common
+AB-6,Alex Rushby,Alt Base,1 - Common
+AB-7,Milique Martelly,Alt Base,1 - Common
+AB-8,Kevin Carr,Alt Base,1 - Common
+AB-9,Jarod Hilderman,Alt Base,1 - Common
+AB-10,David Noël,Alt Base,1 - Common
+AB-11,Bryan Lemos,Alt Base,1 - Common
+AB-12,Ross Armour,Alt Base,1 - Common
+AB-13,Luca Sheldon,Alt Base,1 - Common
+AB-14,Finlay Ulrick,Alt Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+LG-1,Logo,Logo,1 - Common
+NPC-1,Bruce Richardson,Classics,2 - Uncommon
+NPC-2,Mike Bishop,Classics,2 - Uncommon
+NPC-3,Steve Barnes,Classics,2 - Uncommon
+NPC-4,Kevin Bergin,Classics,2 - Uncommon
+NPC-5,Trevor Robins,Classics,2 - Uncommon
+BM-1,Sam Herr,Blindside Moments,3 - Rare
+BM-2,Mitch Fossier,Blindside Moments,3 - Rare
+BM-3,Winning Goal,Blindside Moments,3 - Rare
+BM-4,Champagne,Blindside Moments,3 - Rare
+BM-5,Team Photo,Blindside Moments,3 - Rare
+CC-1,Brendan Harris,Canvas,2 - Uncommon
+CC-2,Luca Sheldon,Canvas,2 - Uncommon
+CC-3,David Noël,Canvas,2 - Uncommon
+PT-1,Mitch Fossier,Portrait,2 - Uncommon
+PT-2,Nolan Volcan,Portrait,2 - Uncommon
+PT-3,Jordan Kelsall,Portrait,2 - Uncommon
+PS-1,Cooper Zech,Poster,2 - Uncommon
+PS-2,Ollie Betteridge,Poster,2 - Uncommon
+PS-3,Kevin Carr,Poster,2 - Uncommon
+PS-4,Chase Pearson,Poster,2 - Uncommon
+16-1,David Noël,Base,1 - Common
+16-2,Kevin Carr,Base,1 - Common
+16-3,Didrik Henbrant,Base,1 - Common
+16-4,Zsombor Garát,Base,1 - Common
+BL-1,Josh Tetlow,Blueliners,4 - Ultra Rare
+BL-2,Matt Spencer,Blueliners,4 - Ultra Rare
+GD-1,Jason Grande,Guardian,4 - Ultra Rare
+PM-1,Mitch Fossier,Playmaker,2 - Uncommon
+PM-2,Chase Pearson,Playmaker,2 - Uncommon
+SH-1,Matt Marcinew,Sharpshooter,2 - Uncommon
+SH-2,Tim Doherty,Sharpshooter,2 - Uncommon
+FF-1,Mitch Fossier,Fan Faves,2 - Uncommon
+FF-2,Luca Sheldon,Fan Faves,2 - Uncommon
+HT-1,Zsombor Garát,Hometown,3 - Rare
+HT-2,Ollie Betteridge,Hometown,3 - Rare
+HT-3,Jarod Hilderman,Hometown,3 - Rare
+HT-4,Tim Doherty,Hometown,3 - Rare
+HT-5,Milique Martelly,Hometown,3 - Rare
+SA-1,Finlay Ulrick,Sponsored Athletes,3 - Rare
+EC-1,Brendan Harris,Editors Choice,2 - Uncommon
+EC-2,Chase Pearson,Editors Choice,2 - Uncommon
+AS-1,Tim Doherty,All Star,3 - Rare
+AS-2,Chase Pearson,All Star,3 - Rare
+OW-1,Milique Martelly,Ones To Watch,3 - Rare
+OW-2,Alex Rushby,Ones To Watch,3 - Rare
+OW-3,Finlay Ulrick,Ones To Watch,3 - Rare
+IB-1,Chase Pearson,Ice Breakers,3 - Rare
+IB-2,Jordan Kelsall,Ice Breakers,3 - Rare
+IB-3,Bryan Lemos,Ice Breakers,3 - Rare
+IB-4,Didrik Henbrant,Ice Breakers,3 - Rare
+PR-1,Josh Tetlow,Prism,3 - Rare
+PR-2,David Noël,Prism,3 - Rare
+PR-3,Nolan Volcan,Prism,3 - Rare
+SS-1,Bryan Lemos,Signature Series,3 - Rare
+SS-2,David Noël,Signature Series,3 - Rare
+SS-3,Finlay Ulrick,Signature Series,3 - Rare
+SS-4,Milique Martelly,Signature Series,3 - Rare
+SS-5,Alex Rushby,Signature Series,3 - Rare
+SS-6,Jordan Kelsall,Signature Series,3 - Rare
+SS-7,Ross Armour,Signature Series,3 - Rare
+SS-8,Luca Sheldon,Signature Series,3 - Rare
+DD-1,Garát Zech,Dynamic Duos,4 - Ultra Rare
+LD-1,Captain,Leadership,4 - Ultra Rare
+LD-2,Alternates,Leadership,4 - Ultra Rare
+EH-1,Zsombor Garát,Exceptional Hits,4 - Ultra Rare
+EH-2,Jarod Hilderman,Exceptional Hits,4 - Ultra Rare
+EH-3,Matt Spencer,Exceptional Hits,4 - Ultra Rare
+EH-4,Ross Armour,Exceptional Hits,4 - Ultra Rare
+EA-1,Ollie Betteridge,Exclusive Autos,4 - Ultra Rare
+EA-2,Jason Grande,Exclusive Autos,4 - Ultra Rare

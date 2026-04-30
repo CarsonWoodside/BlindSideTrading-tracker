@@ -102,6 +102,14 @@ const CARD_MAP = {
   BM: { type: "Blindside Moments", rarity: "3 - Rare" },
   OH: { type: "Off-Ice Heroes", rarity: "2 - Uncommon" },
   RB: { type: "Record Breakers", rarity: "3 - Rare" },
+  BL: { type: "Blueliners", rarity: "4 - Ultra Rare" },
+  NPC: { type: "Classics", rarity: "2 - Uncommon" },
+  EC: { type: "Editors Choice", rarity: "2 - Uncommon" },
+  GD: { type: "Guardian", rarity: "4 - Ultra Rare" },
+  HT: { type: "Hometown", rarity: "3 - Rare" },
+  LG: { type: "Logo", rarity: "1 - Common" },
+  PR: { type: "Prism", rarity: "3 - Rare" },
+  SA: { type: "Sponsored Athletes", rarity: "3 - Rare" },
   "16": { type: "16-Bit", rarity: "2 - Uncommon" }
 };
 
