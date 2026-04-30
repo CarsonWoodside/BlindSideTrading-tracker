@@ -1,0 +1,96 @@
+CardNumber,PlayerName,Type,Rarity
+B-17,Adam Berg,Base,1 - Common
+B-18,Ollie Betteridge,Base,1 - Common
+B-18*,Ollie Betteridge,Base,1 - Common
+B-19,Tim Doherty,Base,1 - Common
+B-19*,Tim Doherty,Base,1 - Common
+B-20,Mitch Fossier,Base,1 - Common
+B-20*,Mitch Fossier,Base,1 - Common
+B-21,Didrik Henbrant,Base,1 - Common
+B-22,Sam Herr,Base,1 - Common
+B-22*,Sam Herr,Base,1 - Common
+B-23,Jordan Kelsall,Base,1 - Common
+B-23*,Jordan Kelsall,Base,1 - Common
+B-24,Kristoff Kontos,Base,1 - Common
+B-25,Logan Neilson,Base,1 - Common
+B-25*,Logan Neilson,Base,1 - Common
+B-26,Otto Nieminen,Base,1 - Common
+B-26*,Otto Nieminen,Base,1 - Common
+B-27,Hugo Roy,Base,1 - Common
+B-27*,Hugo Roy,Base,1 - Common
+B-28,Reid Stefanson,Base,1 - Common
+B-29,Danny Stewart,Base,1 - Common
+B-30,Linton Grant,Base,1 - Common
+B-31,Jason Grande,Base,1 - Common
+B-32,Jere Huhtamaa,Base,1 - Common
+B-33,Paws,Base,1 - Common
+AB-17,Oliver Endicott,Alt Base,1 - Common
+AB-18,Cooper Zech,Alt Base,1 - Common
+AB-19,Quinn Wichers,Alt Base,1 - Common
+AB-20,Josh Tetlow,Alt Base,1 - Common
+AB-21,Matt Spencer,Alt Base,1 - Common
+AB-22,Jaakko Niskala,Alt Base,1 - Common
+AB-23,Zsombor Garát,Alt Base,1 - Common
+AB-24,Davis Bunz,Alt Base,1 - Common
+AB-25,Bradley Bowering,Alt Base,1 - Common
+AB-26,Luca Sheldon,Alt Base,1 - Common
+AB-27,Rok Stojanovic,Alt Base,1 - Common
+AB-28,Hunter Vorva,Alt Base,1 - Common
+AB-29,Ryan Bednard,Alt Base,1 - Common
+AB-30,Jason Grande,Alt Base,1 - Common
+AB-31,Jere Huhtamaa,Alt Base,1 - Common
+CL,Checklist,Checklist,1 - Common
+CC-7,Josh Tetlow,Canvas,2 - Uncommon
+CC-8,Davis Bunz,Canvas,2 - Uncommon
+CC-9,Jaakko Niskala,Canvas,2 - Uncommon
+CC-10,Quinn Wichers,Canvas,2 - Uncommon
+PT-5,Zsombor Garát,Portrait,2 - Uncommon
+PT-6,Jason Grande,Portrait,2 - Uncommon
+PT-7,Cooper Zech,Portrait,2 - Uncommon
+PT-8,Tim Doherty,Portrait,2 - Uncommon
+PT-9,Luca Sheldon,Portrait,2 - Uncommon
+PT-10,Matt Alfaro,Portrait,2 - Uncommon
+PS-5,Jason Grande,Poster,2 - Uncommon
+PS-6,Mitch Fossier,Poster,2 - Uncommon
+PS-7,Didrik Henbrant,Poster,2 - Uncommon
+PS-8,Reid Stefanson,Poster,2 - Uncommon
+16-1,Sam Herr,Base,1 - Common
+16-2,Logan Neilson,Base,1 - Common
+16-3,Tim Doherty,Base,1 - Common
+16-4,Didrik Henbrant,Base,1 - Common
+IB-1,Kristoff Kontos,Ice Breakers,3 - Rare
+IB-2,Mitch Fossier,Ice Breakers,3 - Rare
+IB-3,Matt Alfaro,Ice Breakers,3 - Rare
+IB-4,Otto Nieminen,Ice Breakers,3 - Rare
+FF-3,Otto Nieminen,Fan Faves,2 - Uncommon
+FF-4,Didrik Henbrant,Fan Faves,2 - Uncommon
+BM-1,Play-off Champions,Blindside Moments,3 - Rare
+BM-2,Challenge Cup Champions,Blindside Moments,3 - Rare
+MS-1,Sam Herr,Milestones,3 - Rare
+MS-2,Ollie Betteridge,Milestones,3 - Rare
+RB-1,Jason Grande,Record Breakers,3 - Rare
+OH-1,Ben Foster-Wilson,Off-Ice Heroes,2 - Uncommon
+OH-2,Ray Marvin,Off-Ice Heroes,2 - Uncommon
+OH-3,Simon Skinner,Off-Ice Heroes,2 - Uncommon
+OH-4,Andy Dale,Off-Ice Heroes,2 - Uncommon
+OH-5,Jono Bullard,Off-Ice Heroes,2 - Uncommon
+OH-6,Dan Green,Off-Ice Heroes,2 - Uncommon
+OH-7,Sam Hurst,Off-Ice Heroes,2 - Uncommon
+OH-8,Sophie Rouse,Off-Ice Heroes,2 - Uncommon
+OH-9,Chris Ellis,Off-Ice Heroes,2 - Uncommon
+PM-2,Mitch Fossier,Playmaker,2 - Uncommon
+SH-2,Didrik Henbrant,Sharpshooter,2 - Uncommon
+SP-3,Hugo Roy,Spectrum,4 - Ultra Rare
+SP-4,Ryan Bednard,Spectrum,4 - Ultra Rare
+AS-3,Ryan Bednard,All Star,3 - Rare
+AS-4,Mitch Fossier,All Star,3 - Rare
+OW-2,Jason Grande,Ones To Watch,3 - Rare
+SS-7,Jason Grande,Signature Series,3 - Rare
+SS-8,Logan Neilson,Signature Series,3 - Rare
+SS-9,Zsombor Garát,Signature Series,3 - Rare
+SS-10,Mitch Fossier,Signature Series,3 - Rare
+SS-11,Tim Doherty,Signature Series,3 - Rare
+SS-12,Otto Nieminen,Signature Series,3 - Rare
+EA,Danny Stewart,Exclusive Autos,4 - Ultra Rare
+EH-1,Cooper Zech,Exceptional Hits,4 - Ultra Rare
+EH-2,Reid Stefanson,Exceptional Hits,4 - Ultra Rare

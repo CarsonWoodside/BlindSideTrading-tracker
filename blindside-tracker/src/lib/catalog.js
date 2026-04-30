@@ -137,7 +137,13 @@ function normalizeHeader(header) {
 }
 
 function getImagePath(teamSlug, season, setSlug, cardNumber) {
-  return `/images/${teamSlug}/${season}/${setSlug}/${encodeURIComponent(cardNumber)}.png`
+  const imageFilename = cardNumber
+    .replace(/\*/g, '-star')
+    .replace(/[<>:"/\\|?*]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+
+  return `/images/${teamSlug}/${season}/${setSlug}/${encodeURIComponent(imageFilename)}.png`
 }
 
 function createCards(rows, meta) {

@@ -57,6 +57,14 @@ function getSetMeta(url) {
   };
 }
 
+function getImageFilename(cardNumber) {
+  return cardNumber
+    .replace(/\*/g, "-star")
+    .replace(/[<>:"/\\|?*]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 const teamName = toTitleCase(TEAM);
 const setMeta = getSetMeta(SOURCE_URL);
 const csvFilename = `${teamName} ${SEASON}${setMeta.fileLabel}.csv`;
@@ -92,6 +100,8 @@ const CARD_MAP = {
   IB: { type: "Ice Breakers", rarity: "3 - Rare" },
   MS: { type: "Milestones", rarity: "3 - Rare" },
   BM: { type: "Blindside Moments", rarity: "3 - Rare" },
+  OH: { type: "Off-Ice Heroes", rarity: "2 - Uncommon" },
+  RB: { type: "Record Breakers", rarity: "3 - Rare" },
   "16": { type: "16-Bit", rarity: "2 - Uncommon" }
 };
 
@@ -199,7 +209,7 @@ for (const card of cards) {
 
   if (!img) continue;
 
-  const filePath = `${baseDir}/${cardNumFormatted}.png`;
+  const filePath = path.join(baseDir, `${getImageFilename(cardNumFormatted)}.png`);
 
   downloads.push((async () => {
     try {
