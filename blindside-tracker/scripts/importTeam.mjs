@@ -11,7 +11,7 @@ if (!URL || !TEAM || !SEASON) {
   process.exit(1);
 }
 
-const baseDir = `./public/images/${TEAM}/${SEASON}/series1`;
+const baseDir = `./public/images/${TEAM}/${SEASON}/series2`;
 const csvPath = `./data/raw/${TEAM}/${SEASON}.csv`;
 
 await fs.ensureDir(baseDir);
@@ -41,6 +41,8 @@ const CARD_MAP = {
   SP: { type: "Spectrum", rarity: "4 - Ultra Rare" },
   SS: { type: "Signature Series", rarity: "3 - Rare" },
   IB: { type: "Ice Breakers", rarity: "3 - Rare" },
+  MS: { type: "Milestones", rarity: "3 - Rare" },
+  BM: { type: "Blindside Moments", rarity: "3 - Rare" },
   "16": { type: "16-Bit", rarity: "2 - Uncommon" }
 };
 
@@ -70,7 +72,8 @@ try {
 
 const $ = cheerio.load(res.data);
 
-let rows = ["CardNumber,PlayerName,Type,Rarity"];
+const rows = ["CardNumber,PlayerName,Type,Rarity"];
+const cards = [];
 const downloads = [];
 
 $("h2.wpr-grid-item-title a").each((i, el) => {
@@ -114,11 +117,38 @@ $("h2.wpr-grid-item-title a").each((i, el) => {
   name = name.replace(/\s+/g, " ").trim();
 
   const { type, rarity } = getCardMeta(cardNumClean);
+  const img = $(el).closest("article").find("img").attr("src");
+
+  cards.push({
+    cardNumFormatted,
+    name,
+    type,
+    rarity,
+    img
+  });
+});
+
+const cardCounts = new Map();
+for (const card of cards) {
+  cardCounts.set(card.cardNumFormatted, (cardCounts.get(card.cardNumFormatted) || 0) + 1);
+}
+
+const cardOccurrences = new Map();
+for (const card of cards) {
+  const hasNumber = /\d/.test(card.cardNumFormatted);
+  const count = cardCounts.get(card.cardNumFormatted) || 0;
+  const occurrence = (cardOccurrences.get(card.cardNumFormatted) || 0) + 1;
+
+  cardOccurrences.set(card.cardNumFormatted, occurrence);
+
+  const cardNumFormatted = !hasNumber && count > 1
+    ? `${card.cardNumFormatted}-${occurrence}`
+    : card.cardNumFormatted;
+  const { name, type, rarity, img } = card;
 
   rows.push(`${cardNumFormatted},${name},${type},${rarity}`);
 
-  const img = $(el).closest("article").find("img").attr("src");
-  if (!img) return;
+  if (!img) continue;
 
   const filePath = `${baseDir}/${cardNumFormatted}.png`;
 
@@ -144,7 +174,7 @@ $("h2.wpr-grid-item-title a").each((i, el) => {
       console.error(`Failed ${cardNumFormatted}`);
     }
   })());
-});
+}
 
 // Download all images
 await Promise.all(downloads);
