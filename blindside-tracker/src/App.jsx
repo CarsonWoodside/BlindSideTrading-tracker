@@ -3,10 +3,18 @@ import blindsideLogo from "../data/images/blindside-logo.png";
 import "./App.css";
 import { catalog, teams } from "./lib/catalog";
 import { collectionStore } from "./lib/collectionStore";
+import Fuse from "fuse.js";
 
 // ─────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────
+
+const FUSE_OPTIONS = {
+  keys: ["playerName", "cardNumber", "type", "rarity"],
+  threshold: 0.35,
+  distance: 100,
+  ignoreLocation: true,
+};
 
 const CARD_NUMBER_COLLATOR = new Intl.Collator(undefined, {
   numeric: true,
@@ -505,7 +513,17 @@ function SetViewer({
 
   const visibleCards = useMemo(() => {
     if (!selectedSet) return [];
-    const filtered = selectedSet.cards.filter((card) => {
+
+    let pool = selectedSet.cards;
+
+    // Fuzzy Search
+    if (searchValue.trim()) {
+      const fuse = new Fuse(pool, FUSE_OPTIONS);
+      pool = fuse.search(searchValue).map((result) => result.item);
+    }
+
+    // Apply other filters
+    const filtered = pool.filter((card) => {
       const qty = selectedSetState[card.id]?.quantity ?? 0;
       const matchOwn =
         ownershipFilter === "all" ||
@@ -515,11 +533,11 @@ function SetViewer({
       const matchType = typeFilter === "all" || card.type === typeFilter;
       const matchRarity =
         rarityFilter === "all" || card.rarity === rarityFilter;
-      return (
-        matchesSearch(card, searchValue) && matchOwn && matchType && matchRarity
-      );
+
+      return matchOwn && matchType && matchRarity;
     });
 
+    // Apply Sorting
     return filtered.sort((a, b) => {
       if (sortOrder === "name") return a.playerName.localeCompare(b.playerName);
       if (sortOrder === "number")
