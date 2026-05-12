@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import blindsideLogo from "../data/images/blindside-logo.png";
 import "./App.css";
+import "./auth.css";
 import { catalog, teams } from "./lib/catalog";
 import { collectionStore } from "./lib/collectionStore";
+import { useAuth } from "./lib/useAuth";
+import { AuthModal } from "./AuthModal";
 import Fuse from "fuse.js";
 
 // ─────────────────────────────────────────────
@@ -146,17 +149,6 @@ function buildSetStats(set, collection) {
     completion: set.totalCards === 0 ? 0 : (ownedCount / set.totalCards) * 100,
     lastUpdated: latestUpdate,
   };
-}
-
-function matchesSearch(card, rawQuery) {
-  if (!rawQuery?.trim()) return true;
-  const text =
-    `${card.cardNumber} ${card.playerName} ${card.type} ${card.rarity}`.toLowerCase();
-  return rawQuery
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .every((word) => text.includes(word));
 }
 
 // ─────────────────────────────────────────────
@@ -516,13 +508,11 @@ function SetViewer({
 
     let pool = selectedSet.cards;
 
-    // Fuzzy Search
     if (searchValue.trim()) {
       const fuse = new Fuse(pool, FUSE_OPTIONS);
       pool = fuse.search(searchValue).map((result) => result.item);
     }
 
-    // Apply other filters
     const filtered = pool.filter((card) => {
       const qty = selectedSetState[card.id]?.quantity ?? 0;
       const matchOwn =
@@ -537,7 +527,6 @@ function SetViewer({
       return matchOwn && matchType && matchRarity;
     });
 
-    // Apply Sorting
     return filtered.sort((a, b) => {
       if (sortOrder === "name") return a.playerName.localeCompare(b.playerName);
       if (sortOrder === "number")
@@ -617,7 +606,6 @@ function SetViewer({
           </p>
         </div>
         <div className="content-stats">
-          {/* Always visible */}
           <div>
             <strong>{selectedSetStats.ownedCount}</strong>
             <span>owned</span>
@@ -632,7 +620,6 @@ function SetViewer({
             <strong>{formatPercent(selectedSetStats.completion)}</strong>
             <span>complete</span>
           </div>
-          {/* Hidden on mobile */}
           <div className="stat-desktop-only">
             <strong>{selectedSet.totalCards}</strong>
             <span>in set</span>
@@ -964,14 +951,35 @@ function SetViewer({
 
 function App() {
   const { routeState, navigate, updateFilters } = useHashRoute();
-  const [collection, setCollection] = useState(() => collectionStore.load());
+
+  // ── Auth ──
+  const { user, loading: authLoading, authError, signIn, signUp, signOut, username } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+
+  // ── Collection — starts empty, loaded async after auth resolves ──
+  const [collection, setCollection] = useState({});
+  const [collectionLoading, setCollectionLoading] = useState(true);
+
+  useEffect(() => {
+    setCollectionLoading(true);
+    collectionStore.load(user?.id).then((data) => {
+      setCollection(data);
+      setCollectionLoading(false);
+    });
+  }, [user?.id]);
+
+  // ── Close auth modal on successful sign-in ──
+  useEffect(() => {
+    if (user) setAuthOpen(false);
+  }, [user]);
+
+  // ── Prefs & misc state ──
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
   const [importMode, setImportMode] = useState("replace");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const toastTimer = useRef(null);
-  const saveTimer = useRef(null);
 
   const [prefs, setPrefs] = useState(() => {
     const saved = prefsStore.load();
@@ -985,6 +993,7 @@ function App() {
   useEffect(() => {
     prefsStore.save(prefs);
   }, [prefs]);
+
   function setPref(key, value) {
     setPrefs((p) => ({ ...p, [key]: value }));
   }
@@ -992,19 +1001,6 @@ function App() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", prefs.theme);
   }, [prefs.theme]);
-
-  useEffect(() => {
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      try {
-        collectionStore.save(collection);
-        setStorageWarning(false);
-      } catch {
-        setStorageWarning(true);
-      }
-    }, 300);
-    return () => clearTimeout(saveTimer.current);
-  }, [collection]);
 
   const selectedSet = useMemo(
     () => catalog.find((s) => s.id === routeState.setId) ?? catalog[0],
@@ -1057,20 +1053,35 @@ function App() {
     toastTimer.current = setTimeout(() => setToastVisible(false), 2500);
   }
 
+  // ── Collection mutations ──
+  // Per-card saves go straight to Supabase (or localStorage for guests).
+  // Batch saves (mark all / clear all / import) use saveAll.
+
   function updateCardQuantity(setId, cardId, nextQuantity, batchUpdater) {
     setCollection((current) => {
+      let nextSetState;
+
       if (batchUpdater) {
-        const nextSetState = batchUpdater(current[setId] ?? {});
-        return { ...current, [setId]: nextSetState };
+        nextSetState = batchUpdater(current[setId] ?? {});
+        const nextCollection = { ...current, [setId]: nextSetState };
+        collectionStore.saveAll(user?.id, nextCollection).catch(() =>
+          setStorageWarning(true),
+        );
+        return nextCollection;
       }
+
       const safeQty = Math.max(0, nextQuantity);
-      return {
-        ...current,
-        [setId]: {
-          ...(current[setId] ?? {}),
-          [cardId]: { quantity: safeQty, updatedAt: new Date().toISOString() },
-        },
+      const updatedAt = new Date().toISOString();
+      nextSetState = {
+        ...(current[setId] ?? {}),
+        [cardId]: { quantity: safeQty, updatedAt },
       };
+
+      collectionStore
+        .saveCard(user?.id, setId, cardId, safeQty, updatedAt)
+        .catch(() => setStorageWarning(true));
+
+      return { ...current, [setId]: nextSetState };
     });
   }
 
@@ -1102,8 +1113,12 @@ function App() {
           const incoming = parsed.version && parsed.data ? parsed.data : parsed;
           if (typeof incoming !== "object" || Array.isArray(incoming))
             throw new Error("Invalid format");
+
           if (importMode === "replace") {
             setCollection(incoming);
+            collectionStore.saveAll(user?.id, incoming).catch(() =>
+              setStorageWarning(true),
+            );
             showToast("Collection replaced from file!");
           } else {
             setCollection((current) => {
@@ -1116,6 +1131,9 @@ function App() {
                   if (incomingQty > existingQty) next[setId][cardId] = cardData;
                 });
               });
+              collectionStore.saveAll(user?.id, next).catch(() =>
+                setStorageWarning(true),
+              );
               return next;
             });
             showToast("Collection merged — kept highest quantities!");
@@ -1187,6 +1205,27 @@ function App() {
                   Import
                 </button>
               </div>
+
+              {/* ── Auth button ── */}
+              {!authLoading && (
+                user ? (
+                  <span className="user-btn">
+                    <strong>@{username ?? user.email}</strong>
+                    <button type="button" className="btn" onClick={signOut}>
+                      Sign out
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-dark"
+                    onClick={() => setAuthOpen(true)}
+                  >
+                    Sign in
+                  </button>
+                )
+              )}
+
               <button
                 type="button"
                 className="btn theme-toggle hero-theme-toggle"
@@ -1230,6 +1269,16 @@ function App() {
           </div>
         </section>
       </header>
+
+      {/* ── Auth modal ── */}
+      {authOpen && (
+        <AuthModal
+          onSignIn={signIn}
+          onSignUp={signUp}
+          authError={authError}
+          onClose={() => setAuthOpen(false)}
+        />
+      )}
 
       {/* ── Mobile toolbar (hidden on desktop) ── */}
       <div className="mobile-toolbar">
@@ -1346,7 +1395,11 @@ function App() {
 
         {/* Content */}
         <div className="app-content">
-          {selectedSet && (
+          {collectionLoading ? (
+            <div className="empty-state">
+              <p className="empty-state-title">Loading your collection…</p>
+            </div>
+          ) : selectedSet ? (
             <SetViewer
               selectedSet={selectedSet}
               collection={collection}
@@ -1358,7 +1411,7 @@ function App() {
               }
               viewMode={prefs.viewMode}
             />
-          )}
+          ) : null}
         </div>
       </main>
 
