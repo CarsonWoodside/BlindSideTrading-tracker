@@ -10,7 +10,7 @@ A modern, responsive web application for Blindside card collectors to track thei
 - **Dynamic Search**: Find specific players or card numbers instantly with the integrated search bar.
 - **Dual View Modes**: Switch between a visual **Grid View** (card artwork focused) and a detailed **List View** for bulk management.
 - **Dark Mode**: High-contrast dark theme for better visibility in different lighting conditions.
-- **Local Storage**: Automatically saves your collection progress to your browser, with built-in storage warnings to prevent data loss.
+- **Account System**: Account feature using Supabase as a host and authentication system. Profile data automatically merges from local storage to supabse on login.
 - **Data Portability**: Built-in functionality to **Export** and **Import** (Replace or Merge) your collection data as JSON files.
 - **Mobile Optimized**: Responsive design including a mobile-friendly navigation drawer for on-the-go tracking.
 
