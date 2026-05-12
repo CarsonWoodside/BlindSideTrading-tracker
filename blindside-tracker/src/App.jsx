@@ -953,7 +953,7 @@ function App() {
   const { routeState, navigate, updateFilters } = useHashRoute();
 
   // ── Auth ──
-  const { user, loading: authLoading, authError, signIn, signUp, signOut } = useAuth();
+  const { user, loading: authLoading, authError, signIn, signUp, signOut, username } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
 
   // ── Collection — starts empty, loaded async after auth resolves ──
@@ -1210,7 +1210,7 @@ function App() {
               {!authLoading && (
                 user ? (
                   <span className="user-btn">
-                    <strong>{user.email}</strong>
+                    <strong>@{username ?? user.email}</strong>
                     <button type="button" className="btn" onClick={signOut}>
                       Sign out
                     </button>
